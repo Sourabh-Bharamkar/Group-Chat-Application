@@ -31,7 +31,7 @@
     background-color: #FFDF29;
 }
 
-#signup-button,#login-button{
+#header-signup-btn,#header-login-btn{
     padding: 5px 15px;
     margin-right: 8px;
     border: none;
@@ -42,7 +42,8 @@
 @media (max-width: 480px) {
     .header{
         width: 100%;
-        padding: 10px 3%;
+        padding-left: 3%;
+        padding-right: 3%;
     }
     
 }

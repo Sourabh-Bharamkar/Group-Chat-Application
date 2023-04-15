@@ -30,9 +30,168 @@
 }
 
 
+/* The Modal (background) */
+.Modal {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    /* Stay in place */
+    z-index: 1;
+    /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    overflow: none;
+    /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black w/ opacity */
+
+}
+
+/* Modal Content */
+.Modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    margin-top: 80px;
+    top: 10%;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: none;
+    width: 35%;
+
+}
+
+.Modal-header{
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid#CACACA;
+
+}
+
+.Modal-header h2 {
+    margin: auto;
+    color: #2B7A78;
+    font-size:x-large;
+
+}
+
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+.form-container {
+    width: 100%;
+
+}
+
+
+input{
+    width: 100%;
+    padding: 13px;
+    border: 1px solid#CACACA;
+    border: none;
+    border-bottom: 1px solid#CACACA;
+    margin-top:20px ;
+    font-size: medium;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.input-field{
+    width: 100%;
+ 
+    
+}
+
+.button-field {
+    width: 100%;
+    margin-top: 20px;
+    
+}
+
+.form-container button{
+    width: 100%;
+    padding: 10px;
+    margin-top: 30px;
+    font-size: medium;
+    color: white;
+    box-sizing: border-box;
+    border: none;
+    background-color: #3AAFA9;
+    cursor: pointer;
+
+}
+
+.form-container button:hover{
+    background-color: #2B7A78;
+}
+
+.form-container p{
+    text-align: center;
+    margin-top: 20px;
+    
+}
+
+.form-container a{
+    color: #2B7A78;
+    font-weight: bold;
+}
+
+.form-container h1{
+    text-align: center;
+    color: #2B7A78;
+    
+}
+
+.error{
+    color: red;
+}
+
+/* forgot password link on login form  */
+#forgot-password{
+    text-decoration: none;
+    float: right;
+    font-weight: 600;
+}
+
+
+
+
+
+
+
+
+
+
+
 @media (max-width: 480px) {
+   
     .main{
         grid-template-columns: repeat(1,1fr);
+    }
+
+    .Modal-content{
+        width: 100%;
+        height: 100%;
     }
 
 }

@@ -14,15 +14,17 @@
 
 <body>
     <div id="body">
+
         <div class="header">
             <div class="logo"><img src="/images/chat-logo.png" alt="logo"> Chat App</div>
             <div class="header-buttons">
-                <button id="signup-button">Sign Up</button>
-                <button id="login-button">Login</button>
+                <button id="header-signup-btn" class="signup-btn">Sign Up</button>
+                <button id="header-login-btn" class="login-btn">Login</button>
             </div>
         </div>
 
         <div class="main">
+
             <div class="homepage-text">
                 <h1>Group Chat App</h1> <br><br>
                 <h2>simple, intuitive, stable and feature-rich app</h2><br>
@@ -34,18 +36,174 @@
 
                 <img src="/images/group-chat-homepage.png" alt="">
             </div>
+
+
+            <!-- The modal for login button  -->
+            <div id="login-modal" class="Modal">
+
+                <!-- Modal content -->
+                <div class="Modal-content">
+
+                    <div class="Modal-header">
+                        <h2>Login </h2>
+                        <span class="close">&times;</span>
+                    </div>
+
+                    <div class="Modal-body">
+                        <div class="form-container">
+
+
+                            <form id="login-form">
+
+                                <div class="input-field">
+                                    <input type="email" id="login-email" name="email" placeholder="Your Email" required>
+                                    <br>
+                                    <span class="error"  id="email-error"></span>
+                                </div>
+
+                                <div class="input-field">
+                                    <input type="password" id="login-password" name="password" placeholder="Password"
+                                        required>
+                                    <br>
+                                    <span class="error"  id="login-password-error"></span>
+
+                                </div><br>
+
+                                <div>
+                                    <a id="forgot-password" href="">Forgot Password?</a>
+                                </div>
+
+                                <div class="button-field">
+                                    <button type="submit" name="login-btn" id="login-btn">Login</button>
+                                </div>
+
+                            </form>
+                            <p>
+                                Don't have an account yet?
+                                <a id="signup-here-link" href="">Sign Up </a>
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- The modal for forgot password link  -->
+            <div id="forgot-password-modal" class="Modal">
+
+                <!-- Modal content -->
+                <div class="Modal-content">
+
+                    <div class="Modal-header">
+                        <h2>Recover Your Password </h2><br>
+                        <span class="close">&times;</span><br>
+                    </div>
+
+                    <div class="Modal-body">
+                        <div class="form-container">
+
+                            <form id="forgot-password-form">
+
+                                <p>We will send you a link to reset your password.</p>
+                                <div class="input-field">
+                                    <input type="email" id="forgot-password-email" placeholder="Enter your Email"
+                                        required>
+                                    <br>
+                                    <span class="error" id="forgot-password-email-error"></span>
+                                </div>
+
+                                <div class="button-field">
+                                    <button type="submit" id="forgot-password-form-submit-btn">Send Reset Link</button>
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- The modal for signup button  -->
+            <div id="signup-modal" class="Modal">
+
+                <!-- Modal content -->
+                <div class="Modal-content">
+
+                    <div class="Modal-header">
+                        <h2>Sign Up </h2>
+                        <span class="close">&times;</span>
+                    </div>
+
+                    <div class="Modal-body">
+                        <div class="form-container">
+
+                            <form id="signup-form">
+                                <div class="input-field">
+                                    <input type="text" id="name" name="name" placeholder="Your Name" required>
+                                    <br>
+                                    <span class="error" id="name-error"></span>
+                                </div>
+
+                                <div class="input-field">
+                                    <input type="email" id="signup-email" name="email" placeholder="Email"
+                                        required>
+                                    <br>
+                                    <span class="error"  id="email-error"></span>
+                                </div>
+
+                                <div class="input-field">
+                                    <input type="tel" id="mobile-number" name="mobileNumber" pattern="[0-9]{10}" placeholder="Mobile Number" required>
+                                    <br>
+                                    <span class="error"  id="mobile-number-error"></span>
+                                </div>
+
+                                <div class="input-field">
+                                    <input type="password" id="signup-password" name="password" placeholder="Password"
+                                        required>
+                                    <br>
+                                    <span class="error"  id="signup-password-error"></span>
+                                </div>
+
+                                <div class="button-field">
+                                    <button type="submit" name="signup-btn" id="signup-btn">Sign Up</button>
+                                </div>
+
+                            </form>
+                            <p>
+                                Have already an account?
+                                <a id="login-here-link" href="">Login here</a>
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
         </div>
 
 
 
-        
-        
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/index.js"></script>
+    <script src="/js/signup.js"></script>
 
 </body>
 
