@@ -1,0 +1,46 @@
+.main{
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+}
+
+#page-not-found-text{
+    padding-left: 30px;
+    text-align: center;
+    padding-top: 150px;
+}
+
+#page-not-found-text h1{
+    font-size: 60px;
+}
+
+
+#page-not-found-image{
+    padding-right: 30px;
+}
+
+#page-not-found-image img{
+    width: 100%;
+}
+
+
+
+button{
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #3b98b7;
+    color: white;
+}
+
+button:hover{
+    background-color: teal;
+}
+
+
+@media (max-width: 480px) {
+   
+    .main{
+        grid-template-columns: repeat(1,1fr);
+    }
+
+}
