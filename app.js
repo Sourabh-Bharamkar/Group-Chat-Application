@@ -9,10 +9,7 @@ const cors=require('cors')
 const pageNotFoundMiddleware=require('./middleware/404')
 const userRoutes=require('./routes/user')
 
-app.use(cors({
-    origin:"*",
-  
-}))
+app.use(cors())
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
