@@ -1,0 +1,219 @@
+body {
+  /* background-color: #f6f6f2; */
+}
+
+/* css for header  */
+#user-profile {
+  margin-left: auto;
+  margin-right: 30px;
+
+}
+
+#logout-btn {
+  padding: 5px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: transparent;
+  color: #FFDF29;
+  border: 1px solid white;
+}
+
+#logout-btn:hover{
+  background-color:#FFDF29;
+  transition: .3s;
+  border: none;
+  color: black;
+}
+
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 20% auto 20%;
+
+}
+
+.grid-coloumn {
+  height: 89vh;
+  border-right: 1px solid #bbbbbb;
+  /* box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); */
+  /* border-radius: 15px; */
+  background-color: white;
+
+}
+
+.coloumn-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-bottom: 1px solid #adadad;
+  /* box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); */
+
+}
+
+.coloumn-heading h2 {
+  font-size: 20px;
+
+}
+
+/* css for coloumn number 1 */
+
+#coloumn-1-heading{
+  
+  border-bottom: none;
+}
+
+#chats-coloumn {
+  background-color: #f6f6f2;
+  /* box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); */
+
+}
+
+#search-user {
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#search-user input {
+
+  padding: 5px 30px;
+  border: none;
+  background-color: white;
+  border: 1px solid gray;
+  outline: none;
+}
+
+
+#chat-list {
+  margin-top: 10px;
+  /* box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); */
+  height: 450px;
+  overflow-y: auto;
+}
+
+.user {
+
+  padding: 10px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  overflow-wrap: break-word;
+  border-bottom: 1px solid #e2e2e2;
+
+}
+
+.user:hover {
+  background-color: white;
+}
+
+
+.active-user {
+  background-color: white;
+}
+
+/* css for scrollbar  */
+/* width */
+::-webkit-scrollbar {
+  width: 3px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
+/* css for grid coloumn number 2 */
+
+#coloumn-2-heading {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+}
+
+#coloumn-2-heading h2 {
+
+  margin-left: 10px;
+  font-size: large;
+}
+
+#message-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 30px;
+  margin-bottom: 2px;
+
+
+}
+
+
+#message-input input {
+  padding: 10px;
+  width: 80%;
+  border: none;
+  background-color: #f1f1f1;
+  border: 1px solid grey;
+  outline: none;
+
+}
+
+
+#message-send-btn {
+
+  padding: 5px;
+  border: none;
+  background-color: rgb(3, 159, 159);
+  height: 100%;
+   border: 1px solid grey;
+}
+
+
+#message-send-btn:hover{
+  background-color: rgb(1, 127, 127);
+}
+
+
+#message-send-btn img {
+  width: 35px;
+  height: 35px;
+}
+
+
+div#messages-list {
+  width: 100%;
+  height: 73%;
+  overflow-y: auto;
+}
+
+#messages-list div {
+  padding: 7px 15px;
+  background-color: #e3f9f6;
+  margin-top: 15px;
+  margin-left: 15px;
+  width: fit-content;
+  border-radius: 10px;
+}
+
+.message h3 {
+  font-size: 15px;
+  color: rgb(235, 60, 11);
+}
+
+/* css for coloumn number 3  */
+#coloumn-3-heading{
+  border-bottom: none;
+}

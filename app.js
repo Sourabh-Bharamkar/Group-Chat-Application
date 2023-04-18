@@ -8,6 +8,7 @@ const cors=require('cors')
 
 const pageNotFoundMiddleware=require('./middleware/404')
 const userRoutes=require('./routes/user')
+const chatRoutes=require('./routes/chat')
 
 app.use(cors())
 
@@ -17,6 +18,7 @@ app.use(bodyParser.json())
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(userRoutes)
+app.use(chatRoutes)
 
 app.use(pageNotFoundMiddleware)
 sequelize.sync()

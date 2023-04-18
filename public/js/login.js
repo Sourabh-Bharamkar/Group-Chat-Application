@@ -36,7 +36,7 @@ async function login(e) {
         window.alert('Login successful!!')
         localStorage.setItem('token', response.data.token)
         clearInputFields();
-        
+        window.location='/dashboard'
 
     }
     catch (error) {
