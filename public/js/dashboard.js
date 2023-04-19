@@ -1,8 +1,8 @@
-// adding user profile in the header on dom content loaded 
+// Aunthenticate user  on dom content loaded 
 
-window.addEventListener('DOMContentLoaded', addUserProfile)
+window.addEventListener('DOMContentLoaded', userAuthentication)
 
-function addUserProfile() {
+function userAuthentication() {
     //send request for getting user details by sending token
 }
 
@@ -29,6 +29,71 @@ function searchUsers() {
 
     })
 
+}
+
+
+
+//adding create group button functionality
+const createGroupButton=document.getElementById('create-group-btn')
+createGroupButton.addEventListener('click',showCreateGroupModal)
+
+function showCreateGroupModal(){
+    const createGroupModal=document.getElementById('create-group-modal')
+    createGroupModal.style.display='block'
+}
+
+
+const addMemberButton=document.getElementById('add-member-btn')
+addMemberButton.addEventListener('click',showAddMemberModal)
+
+function showAddMemberModal(){
+    const addMemberModal=document.getElementById('add-member-modal')
+    addMemberModal.style.display='block'
+}
+
+// Get the modal
+
+const createGroupModal=document.getElementById('create-group-modal')
+const addMemberModal=document.getElementById('add-member-modal')
+
+
+
+// Get the <span> element that closes the modal
+let closeButton = document.getElementsByClassName("close");
+
+
+// When the user clicks on close button (x), close the modal
+Array.from(closeButton).forEach((element) => {
+    element.addEventListener('click', closeModal)
+
+})
+
+
+function closeModal() {
+   createGroupModal.style.display='none';
+   addMemberModal.style.display='none'
+
+    clearAllInputFields();
+
+}
+
+
+// When the user clicks anywhere outside of the modal, close it
+
+window.addEventListener('click', modalDisplayOff)
+
+function modalDisplayOff(e) {
+    if (e.target.classList.contains('Modal')) {
+        e.target.style.display = 'none';
+        clearAllInputFields();
+    }
+}
+
+
+function clearAllInputFields() {
+  document.getElementById('add-member-input').value=''
+  document.getElementById('create-group-input').value=''
+  
 }
 
 

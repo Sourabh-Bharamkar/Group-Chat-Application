@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/dashboard.css">
 </head>
+
 <body>
     <div class="header">
         <div class="logo"><img src="/images/chat-logo.png" alt="logo"> Chat App</div>
@@ -24,10 +26,13 @@
             <div class="coloumn-heading" id="coloumn-1-heading">
                 <h2> Chats</h2>
             </div>
-            
 
             <div id="search-user">
-                <input type="text" id="search-box" placeholder="search" >
+                <input type="text" id="search-box" placeholder="search">
+            </div>
+
+            <div id="create-group">
+                <button id="create-group-btn">+ Create Group</button>
             </div>
 
             <div id="chat-list">
@@ -48,16 +53,21 @@
 
 
         <div id="messages-coloumn" class="grid-coloumn">
-            <div class="coloumn-heading" id="coloumn-2-heading" >
+
+            <div class="coloumn-heading" id="coloumn-2-heading">
                 <h2 id="message-heading"> Lets Chat.. </h2>
+                <button id="add-member-btn" title="add member to group"><img src="/images/add-member.png" alt=""
+                        id="add-member-image"></button>
+                <button id="group-members-btn" title="group members"><img src="/images/group-members.png" alt=""
+                        id="group-members-image"></button>
 
             </div>
 
             <div id="messages-list">
 
-                <div class="message"> 
+                <div class="message">
                     <h3 class="sender">You</h3>
-                    <p>Hi sourabh how are you</p> 
+                    <p>Hi sourabh how are you</p>
                 </div>
 
                 <div> I am Fine</div>
@@ -65,7 +75,7 @@
                 <div> I am Fine</div>
                 <div> I am Fine</div>
                 <div> I am Fine</div>
-             
+
             </div>
 
             <div id="message-input">
@@ -75,17 +85,88 @@
             </div>
 
         </div>
-        
 
-        <div id="members-coloumn" class="grid-coloumn">
-            <div class="coloumn-heading" id="coloumn-3-heading">
-                <h2> Active Members</h2>
+
+    </div>
+
+    <!-- modal for create group button  -->
+
+    <div id="create-group-modal" class="Modal">
+
+        <!-- Modal content -->
+        <div class="Modal-content">
+
+            <div class="Modal-header">
+                <h2>Create Group</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="Modal-body">
+                <div class="form-container">
+
+                    <form id="create-group-form">
+
+                        <div class="input-field">
+                            <label for="create-group-input">Group Name:</label>
+                            <input type="text" id="create-group-input" placeholder="Enter group name" required> <br>
+                            
+                        </div>
+                      
+                        <div class="button-field">
+                            <button type="submit" id="create-group-form-btn">Create Group</button>
+                        </div>
+
+                    </form>
+                    
+                </div>
 
             </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- modal for add member to group  -->
+    <div id="add-member-modal" class="Modal">
+
+        <!-- Modal content -->
+        <div class="Modal-content">
+
+            <div class="Modal-header">
+                <h2>Add Member to Group</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="Modal-body">
+                <div class="form-container">
+
+                    <form id="add-member-form">
+
+                        <div class="input-field">
+                            <label for="add-member-input">User's Mobile no.:</label>
+                            <input type="tel" id="add-member-input" pattern="[0-9]{10}" placeholder="Enter user's mobile no." required> <br>
+                            
+                        </div>
+                      
+                        <div class="button-field">
+                            <button type="submit" id="add-member-form-btn">Add Member</button>
+                        </div>
+
+                    </form>
+                    
+                </div>
+
+            </div>
+
+
         </div>
 
     </div>
 
     <script src="/js/dashboard.js"></script>
+
 </body>
+
 </html>
