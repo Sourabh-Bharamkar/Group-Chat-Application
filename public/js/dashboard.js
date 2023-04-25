@@ -348,3 +348,43 @@ function highlightGroupOnClick() {
 }
 
 
+//sending a request for every seconds for getting new messages
+
+setInterval(async () => {
+    try {
+        if (document.getElementById('messages-coloumn-guide').style.display = 'none') {
+
+            const groupId = document.getElementById('message-heading').children[0].textContent;
+            const response = await axios.post('http://localhost:3000/chat/group/messages', { groupId: groupId })
+            const messages = Array.from(response.data.messages);
+            console.log(messages)
+            const response1 = await axios.get('http://localhost:3000/chat/profile')
+            const mobileNumber = response1.data.mobileNumber;
+            document.getElementById('messages-list').innerHTML=''
+
+            messages.forEach((message) => {
+                if (message.sender == mobileNumber) {
+                    document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div class="message outgoing">
+                        <h3 class="sender">${message.sender}</h3>
+                        <p>${message.text}</p>
+                        </div>`)
+                } else {
+                    document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div class="message incoming">
+                        <h3 class="sender">${message.sender}</h3>
+                        <p>${message.text}</p>
+                        </div>`)
+                }
+
+            })
+
+            //scroll down
+            const messagesList = document.getElementById('messages-list')
+            messagesList.scrollTop = messagesList.scrollHeight;
+
+        }
+
+    } catch (error) {
+
+    }
+
+}, 1000)
