@@ -35,6 +35,7 @@ async function login(e) {
 
         window.alert('Login successful!!')
         localStorage.setItem('token', response.data.token)
+        // localStorage.serItem('mobileNumber',response.data.mobileNumber)
         clearInputFields();
         window.location='/dashboard'
 

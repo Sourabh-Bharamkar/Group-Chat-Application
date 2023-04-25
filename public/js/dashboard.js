@@ -1,9 +1,32 @@
-// Aunthenticate user  on dom content loaded 
 
-window.addEventListener('DOMContentLoaded', userAuthentication)
+//setting header common to all requests
+axios.defaults.headers.common['Authorization'] = localStorage.getItem('token')
 
-function userAuthentication() {
-    //send request for getting user details by sending token
+// Authenticate and get profile of the user on dom content loaded 
+
+window.addEventListener('DOMContentLoaded', getUserProfile)
+
+async function getUserProfile() {
+    try {
+        const response = await axios.get('http://localhost:3000/chat/profile')
+        const userDetails = response.data;
+        document.getElementById('user-profile').textContent = userDetails.name;
+
+
+    } catch (error) {
+        console.log(error)
+        console.log(error.response.data.message)
+        //if user is not logged in redirect to home page
+        if (error.response.data.message == 'you are not currently logged in') {
+            window.location = '/'
+            window.alert('You are not currently logged in')
+        }
+        if (error.response.data.message == 'authentication error') {
+            window.location = '/'
+            window.alert('Authentication Error.Please try logging in again.')
+        }
+    }
+
 }
 
 
@@ -17,7 +40,7 @@ searchBox.addEventListener('keyup', searchUsers)
 function searchUsers() {
     console.log('Inside searchUsers function')
     const searchInput = document.getElementById('search-box').value.toLowerCase();
-    const usersList = document.getElementsByClassName('user')
+    const usersList = document.getElementsByClassName('group')
     Array.from(usersList).forEach((element) => {
         if (!element.textContent.toLowerCase().includes(searchInput)) {
             console.log(element)
@@ -34,27 +57,28 @@ function searchUsers() {
 
 
 //adding create group button functionality
-const createGroupButton=document.getElementById('create-group-btn')
-createGroupButton.addEventListener('click',showCreateGroupModal)
 
-function showCreateGroupModal(){
-    const createGroupModal=document.getElementById('create-group-modal')
-    createGroupModal.style.display='block'
+const createGroupButton = document.getElementById('create-group-btn')
+createGroupButton.addEventListener('click', showCreateGroupModal)
+
+function showCreateGroupModal() {
+    const createGroupModal = document.getElementById('create-group-modal')
+    createGroupModal.style.display = 'block'
 }
 
 
-const addMemberButton=document.getElementById('add-member-btn')
-addMemberButton.addEventListener('click',showAddMemberModal)
+const addMemberButton = document.getElementById('add-member-btn')
+addMemberButton.addEventListener('click', showAddMemberModal)
 
-function showAddMemberModal(){
-    const addMemberModal=document.getElementById('add-member-modal')
-    addMemberModal.style.display='block'
+function showAddMemberModal() {
+    const addMemberModal = document.getElementById('add-member-modal')
+    addMemberModal.style.display = 'block'
 }
 
 // Get the modal
 
-const createGroupModal=document.getElementById('create-group-modal')
-const addMemberModal=document.getElementById('add-member-modal')
+const createGroupModal = document.getElementById('create-group-modal')
+const addMemberModal = document.getElementById('add-member-modal')
 
 
 
@@ -70,8 +94,8 @@ Array.from(closeButton).forEach((element) => {
 
 
 function closeModal() {
-   createGroupModal.style.display='none';
-   addMemberModal.style.display='none'
+    createGroupModal.style.display = 'none';
+    addMemberModal.style.display = 'none'
 
     clearAllInputFields();
 
@@ -91,53 +115,236 @@ function modalDisplayOff(e) {
 
 
 function clearAllInputFields() {
-  document.getElementById('add-member-input').value=''
-  document.getElementById('create-group-input').value=''
-  
+    document.getElementById('add-member-mobile-input').value = ''
+    document.getElementById('create-group-input').value = ''
+
 }
-
-
-
-//when user clicks on any user show his name in heading and make that user highlighted
-
-const usersList = document.getElementsByClassName('user')
-Array.from(usersList).forEach((element) => {
-    element.addEventListener('click', showUserNameAtHeading)
-
-
-    function showUserNameAtHeading() {
-
-        //also remove background color of previous active chat user
-        const userList = Array.from(document.getElementsByClassName('user'))
-        userList.forEach((element) => {
-            if (element.classList.contains('active-user')) {
-                element.classList.remove('active-user')
-            }
-
-        })
-
-        // add background color to active chat user 
-        element.classList.add('active-user')
-
-        //adding users name at heading
-        const userName = element.textContent;
-        console.log(userName)
-        const chatHeading = document.getElementById('message-heading')
-        chatHeading.textContent = userName;
-
-    }
-
-})
 
 
 
 //adding logout functionality
-const logoutBtn=document.getElementById('logout-btn')
+const logoutBtn = document.getElementById('logout-btn')
 
-logoutBtn.addEventListener('click',logout)
+logoutBtn.addEventListener('click', logout)
 
-function logout(){
+function logout() {
     localStorage.clear();
     sessionStorage.clear();
-    window.location='http://localhost:3000/'
+    window.location = 'http://localhost:3000/'
 }
+
+
+
+//create group functionality
+
+const createGroupform = document.getElementById('create-group-form')
+createGroupform.addEventListener('submit', createGroup)
+
+async function createGroup(e) {
+    try {
+        e.preventDefault();
+        const groupName = document.getElementById('create-group-input').value;
+        const response = await axios.post('http://localhost:3000/chat/create-group', { groupName: groupName })
+        const group = response.data.groupDetails;
+        document.getElementById('group-list').insertAdjacentHTML('afterbegin', `<div class="group"><span hidden> ${group.id}</span>${group.name}</div>`)
+        clearAllInputFields();
+        closeModal();
+
+        highlightGroupOnClick()
+
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+
+//adding chat groups on dom content loaded 
+
+window.addEventListener('DOMContentLoaded', showJoinedChatGroups)
+
+async function showJoinedChatGroups() {
+    try {
+        const response = await axios.get('http://localhost:3000/chat/groups')
+        const chatGroups = response.data.chatGroups;
+
+        chatGroups.forEach((chatGroup) => {
+            document.getElementById('group-list').insertAdjacentHTML('beforeend', `<div class="group"><span hidden> ${chatGroup.id}</span>${chatGroup.name}</div>`)
+
+        })
+
+        highlightGroupOnClick();
+        getMessagesOfGroupOnClick();
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+//add member to group
+const addMemberform = document.getElementById('add-member-form')
+addMemberform.addEventListener('submit', addMemberToGroup)
+
+async function addMemberToGroup(e) {
+    try {
+        e.preventDefault();
+        const mobileNumber = document.getElementById('add-member-mobile-input').value
+        const groupId = document.getElementById('message-heading').children[0].textContent;
+        const response = await axios.post('http://localhost:3000/chat/group/add-member', { mobileNumber: mobileNumber, groupId: groupId })
+        closeModal();
+
+    } catch (error) {
+        console.log(error.response.data.message)
+
+        if (error.response.data.message == 'already member of the group') {
+            showError('already member of the group')
+        }
+
+        if (error.response.data.message == 'user not found') {
+            showError('user does not have an account')
+        }
+
+        function showError(err) {
+            const formError = document.getElementById('add-member-form-error')
+            formError.style.display = 'block'
+            formError.textContent = `* ${err}`;
+            setTimeout(() => {
+                formError.textContent = ''
+                formError.style.display = 'none'
+            }, 3000)
+            clearAllInputFields();
+
+        }
+    }
+}
+
+
+
+//send message form functionality
+const sendMessageForm = document.getElementById('send-message-form')
+sendMessageForm.addEventListener('submit', sendMessage)
+
+async function sendMessage(e) {
+    try {
+        e.preventDefault();
+        const message = document.getElementById('message-input').value;
+        const groupId = document.getElementById('message-heading').children[0].textContent;
+        const response = await axios.post('http://localhost:3000/chat/send-message', { message: message, groupId: groupId })
+        document.getElementById('message-input').value = '';
+
+        const Message = response.data.messageDetails;
+
+        document.getElementById('messages-list').insertAdjacentHTML('beforeend',
+            `<div class="message outgoing">
+        <h3 class="sender">${Message.sender}</h3>
+        <p>${Message.text}</p>
+        </div>`)
+
+        //scroll down
+        const messagesList = document.getElementById('messages-list')
+        messagesList.scrollTop = messagesList.scrollHeight;
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+//get messages on click on any group
+function getMessagesOfGroupOnClick() {
+
+    const groupList = Array.from(document.getElementsByClassName('group'))
+
+    groupList.forEach((chatGroup) => {
+        chatGroup.addEventListener('click', getGroupMessages)
+
+        async function getGroupMessages(e) {
+
+            try {
+
+                //also show messages-list div
+                document.getElementById('messages-coloumn-guide').style.display = 'none'
+                document.getElementById('messages-coloumn').style.display = 'block'
+
+                document.getElementById('messages-list').innerHTML = '';
+                console.log(e.target.children[0].textContent)
+                const groupId = e.target.children[0].textContent
+                const response = await axios.post('http://localhost:3000/chat/group/messages', { groupId: groupId })
+                const messages = Array.from(response.data.messages);
+                console.log(messages)
+                const response1 = await axios.get('http://localhost:3000/chat/profile')
+                const mobileNumber = response1.data.mobileNumber;
+
+                messages.forEach((message) => {
+                    if (message.sender == mobileNumber) {
+                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div class="message outgoing">
+                        <h3 class="sender">${message.sender}</h3>
+                        <p>${message.text}</p>
+                        </div>`)
+                    } else {
+                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div class="message incoming">
+                        <h3 class="sender">${message.sender}</h3>
+                        <p>${message.text}</p>
+                        </div>`)
+                    }
+
+                })
+
+                //scroll down
+                const messagesList = document.getElementById('messages-list')
+                messagesList.scrollTop = messagesList.scrollHeight;
+
+
+            } catch (error) {
+                console.log(error)
+            }
+
+
+        }
+    })
+}
+
+
+
+
+
+function highlightGroupOnClick() {
+
+    //when user clicks on any group, show group name in heading and make that group highlighted
+
+    const groups = document.getElementsByClassName('group')
+
+    Array.from(groups).forEach((group) => {
+        group.addEventListener('click', showGroupNameAtHeading)
+
+
+        function showGroupNameAtHeading() {
+
+            //also remove background color of previous active chatgroup
+            const groups = Array.from(document.getElementsByClassName('group'))
+            groups.forEach((group) => {
+                if (group.classList.contains('active-group')) {
+                    group.classList.remove('active-group')
+                }
+
+            })
+
+            // add background color to active group 
+            group.classList.add('active-group')
+
+            //adding group name at heading
+            const groupName = group.innerHTML;
+            const chatHeading = document.getElementById('message-heading')
+            chatHeading.innerHTML = groupName;
+
+        }
+
+    })
+}
+
+

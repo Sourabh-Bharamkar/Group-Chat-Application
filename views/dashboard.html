@@ -15,7 +15,7 @@
 <body>
     <div class="header">
         <div class="logo"><img src="/images/chat-logo.png" alt="logo"> Chat App</div>
-        <div id="user-profile">Sourabh Bharamkar</div>
+        <div id="user-profile"></div>
         <button id="logout-btn">Logout</button>
     </div>
 
@@ -35,24 +35,14 @@
                 <button id="create-group-btn">+ Create Group</button>
             </div>
 
-            <div id="chat-list">
-                <div class="user"> Cricket Lovers</div>
-                <div class="user"> Shahu Group</div>
-                <div class="user"> Crack Members</div>
-                <div class="user"> Sharpener Web Development</div>
-                <div class="user"> Backend Develoopement</div>
-                <div class="user"> Frontend Development</div>
-                <div class="user"> KIT Alumni</div>
-                <div class="user">Mechanical Group </div>
-                <div class="user"> User 9</div>
-                <div class="user"> User 10</div>
-                <div class="user"> User 11</div>
+            <div id="group-list">
+
             </div>
 
         </div>
 
 
-        <div id="messages-coloumn" class="grid-coloumn">
+        <div id="messages-coloumn" class="grid-coloumn" style="display: none;">
 
             <div class="coloumn-heading" id="coloumn-2-heading">
                 <h2 id="message-heading"> Lets Chat.. </h2>
@@ -65,23 +55,24 @@
 
             <div id="messages-list">
 
-                <div class="message">
-                    <h3 class="sender">You</h3>
-                    <p>Hi sourabh how are you</p>
-                </div>
+            </div>
 
-                <div> I am Fine</div>
-                <div> I am Fine</div>
-                <div> I am Fine</div>
-                <div> I am Fine</div>
-                <div> I am Fine</div>
+            <div id="message-input-field">
+                <form action="" id="send-message-form">
+                    <input type="text" id="message-input" placeholder="Type a message" required>
+                    <button type="submit" id="message-send-btn"><img src="/images/message-send-button.png"
+                            alt=""></button>
+                </form>
 
             </div>
 
-            <div id="message-input">
-                <input type="text" placeholder="Type a message">
-                <button id="message-send-btn"><img src="/images/message-send-button.png" alt=""></button>
+        </div>
 
+
+        <div id="messages-coloumn-guide" style="display: block;">
+
+            <div class="coloumn-heading" style="background-color: #f6f6f2; font-size: large; font-size: 20px;">
+                <h2>Let's start chat...</h2>
             </div>
 
         </div>
@@ -109,15 +100,15 @@
                         <div class="input-field">
                             <label for="create-group-input">Group Name:</label>
                             <input type="text" id="create-group-input" placeholder="Enter group name" required> <br>
-                            
+
                         </div>
-                      
+
                         <div class="button-field">
                             <button type="submit" id="create-group-form-btn">Create Group</button>
                         </div>
 
                     </form>
-                    
+
                 </div>
 
             </div>
@@ -145,17 +136,21 @@
                     <form id="add-member-form">
 
                         <div class="input-field">
-                            <label for="add-member-input">User's Mobile no.:</label>
-                            <input type="tel" id="add-member-input" pattern="[0-9]{10}" placeholder="Enter user's mobile no." required> <br>
-                            
+                            <label for="add-member-mobile-input">User's Mobile no.:</label>
+                            <input type="tel" id="add-member-mobile-input" pattern="[0-9]{10}"
+                                placeholder="Enter user's mobile no." required> <br>
+
                         </div>
-                      
+
+                        <div id="add-member-form-error" class="error" style="display: none;">
+                        </div>
+
                         <div class="button-field">
                             <button type="submit" id="add-member-form-btn">Add Member</button>
                         </div>
 
                     </form>
-                    
+
                 </div>
 
             </div>
@@ -165,6 +160,8 @@
 
     </div>
 
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/js/dashboard.js"></script>
 
 </body>

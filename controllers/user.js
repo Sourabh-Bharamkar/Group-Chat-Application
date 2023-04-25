@@ -1,11 +1,11 @@
 const path = require('path')
-const User = require('../models/user')
-const ForgotPasswordRequest=require('../models/forgotPasswordRequest')
 const bcrypt = require('bcrypt')
 const { error } = require('console')
-const Sib=require('sib-api-v3-sdk')
-const jwt=require('jsonwebtoken')
+const Sib = require('sib-api-v3-sdk')
+const jwt = require('jsonwebtoken')
 const { v4: uuidv4 } = require('uuid')
+const User=require('../models/user')
+const ForgotPasswordRequest=require('../models/forgotPasswordRequest')
 
 
 exports.getHomePage = (req, res, next) => {
@@ -86,7 +86,7 @@ exports.postVerifyLoginDetails = async (req, res, next) => {
                 res.status(400).json({ message: 'password is incorrect' })
             }
             else {
-                return res.status(200).json({ message: 'login successful', token: generateAccessToken(user.id, user.name) })
+                return res.status(200).json({ message: 'login successful', token: generateAccessToken(user.id, user.name), mobileNumber:user.mobileNumber })
             }
 
         })
@@ -155,7 +155,7 @@ exports.getResetPasswordPage = async (req, res, next) => {
 
         console.log(requestDetails)
         if (!requestDetails) {
-            
+
             res.status(400).json({ message: 'bad request' })
         }
         if (requestDetails.isActive == true) {
@@ -199,7 +199,5 @@ exports.postResetPassword = async (req, res, next) => {
         console.log(error)
     }
 }
-
-
 
 
