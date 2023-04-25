@@ -2,6 +2,7 @@ const path = require('path')
 const User = require('../models/user')
 const ChatGroup = require('../models/chatGroup')
 const Message = require('../models/message')
+const {Op}=require('sequelize')
 
 exports.getDashboard = (req, res, next) => {
     res.sendFile(path.join(__dirname, '../', 'views/dashboard.html'))
@@ -62,7 +63,7 @@ exports.postAddMemberToGroup = async (req, res, next) => {
         }
         const chatGroup = await ChatGroup.findOne({ where: { id: groupId } })
 
-        const response = await member.hasChatGroup({where:{id:member.id}})
+        const response = await member.hasChatGroup({ where: { id: member.id } })
 
         if (response) {
             console.log('already member of the group')
@@ -88,7 +89,7 @@ exports.postSendMessage = async (req, res, next) => {
         console.log('Inside postSendMessage controller')
         const { message, groupId } = req.body;
         const chatGroup = await ChatGroup.findOne({ where: { id: groupId } })
-        const messageDetails = await chatGroup.createMessage({ text: message, sender:req.user.mobileNumber })
+        const messageDetails = await chatGroup.createMessage({ text: message, sender: req.user.mobileNumber })
         console.log(req.user.mobileNumber)
         res.status(201).json({ success: true, message: 'message saved successfully', messageDetails })
 
@@ -104,11 +105,55 @@ exports.postGroupMessages = async (req, res, next) => {
     try {
 
         const chatGroupId = req.body.groupId;
-        const messages = await Message.findAll({ where: { chatGroupId: chatGroupId } })
+        const lastMessageId = req.body.lastMessageId;
+        const messages = await Message.findAll({
+            where: {
+                [Op.and]: [
+                    { chatGroupId: chatGroupId },
+                    { id: { [Op.gt]: lastMessageId } }
+                ]
+            }
+        })
+
         res.status(200).json({ success: true, messages })
 
     } catch (error) {
         console.log(error)
         res.status(500).json({ success: false, error: error })
     }
+}
+
+
+exports.getMessages = async (req, res, next) => {
+    try {
+
+        let messageId;
+        if (req.query.id == undefined) {
+            messageId = 0;
+
+        } else {
+            messageId = req.query.id;
+        }
+
+        const chatGroups = await req.user.getChatGroups()
+        const chatGroupsId = [];
+        chatGroups.forEach((chatGroup) => {
+            chatGroupsId.push(chatGroup.id)
+
+        })
+
+        const messages = await Message.findAll({
+            where: {
+                [Op.and]: [{ chatGroupId: chatGroupsId }, { chatGroupId: { [Op.gt]: messageId } }]
+
+            }
+        })
+
+        res.status(200).json({ success: true, messages })
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ success: false, error: error })
+    }
+
 }

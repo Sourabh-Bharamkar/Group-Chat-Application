@@ -19,4 +19,6 @@ router.post('/chat/send-message',userAuthentication.authenticate,chatControllers
 
 router.post('/chat/group/messages',userAuthentication.authenticate,chatControllers.postGroupMessages)
 
+router.get('/chat/messages',userAuthentication.authenticate,chatControllers.getMessages)
+
 module.exports=router;

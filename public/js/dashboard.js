@@ -266,34 +266,53 @@ function getMessagesOfGroupOnClick() {
         async function getGroupMessages(e) {
 
             try {
-
+                console.log('ssssss')
                 //also show messages-list div
                 document.getElementById('messages-coloumn-guide').style.display = 'none'
                 document.getElementById('messages-coloumn').style.display = 'block'
 
                 document.getElementById('messages-list').innerHTML = '';
-                console.log(e.target.children[0].textContent)
-                const groupId = e.target.children[0].textContent
-                const response = await axios.post('http://localhost:3000/chat/group/messages', { groupId: groupId })
-                const messages = Array.from(response.data.messages);
-                console.log(messages)
+
+                //getting mobile number of user
                 const response1 = await axios.get('http://localhost:3000/chat/profile')
                 const mobileNumber = response1.data.mobileNumber;
 
-                messages.forEach((message) => {
-                    if (message.sender == mobileNumber) {
-                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div class="message outgoing">
-                        <h3 class="sender">${message.sender}</h3>
-                        <p>${message.text}</p>
-                        </div>`)
-                    } else {
-                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div class="message incoming">
-                        <h3 class="sender">${message.sender}</h3>
-                        <p>${message.text}</p>
-                        </div>`)
-                    }
+                //getting group id of current group
+                console.log(e.target.children[0].textContent)
+                const groupId = e.target.children[0].textContent;
 
-                })
+                //getting messages from local storage 
+                const localStorageMessages = JSON.parse(localStorage.getItem('messages'))
+                const lastMessageId = localStorageMessages[localStorageMessages.length - 1].id;
+
+                insertMessagesIntoMessagesList(localStorageMessages);
+
+                const response = await axios.post('http://localhost:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
+
+                const messages = Array.from(response.data.messages);
+                console.log(messages);
+
+
+                insertMessagesIntoMessagesList(messages);
+
+                function insertMessagesIntoMessagesList(messages) {
+
+                    messages.forEach((message) => {
+                        if (message.sender == mobileNumber) {
+                            document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing">
+                            <h3 class="sender">${message.sender}</h3>
+                            <p>${message.text}</p>
+                            </div>`)
+                        } else {
+                            document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
+                            <h3 class="sender">${message.sender}</h3>
+                            <p>${message.text}</p>
+                            </div>`)
+                        }
+
+                    })
+                }
+
 
                 //scroll down
                 const messagesList = document.getElementById('messages-list')
@@ -351,40 +370,73 @@ function highlightGroupOnClick() {
 //sending a request for every seconds for getting new messages
 
 setInterval(async () => {
+
     try {
-        if (document.getElementById('messages-coloumn-guide').style.display = 'none') {
+        if (document.getElementById('messages-coloumn-guide').style.display == 'none') {
 
             const groupId = document.getElementById('message-heading').children[0].textContent;
-            const response = await axios.post('http://localhost:3000/chat/group/messages', { groupId: groupId })
+
+            //getting last message id from local storage 
+            const lastMessage = document.getElementById('messages-list').lastElementChild
+            const lastMessageId=lastMessage.id;
+
+            const response = await axios.post('http://localhost:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
+
             const messages = Array.from(response.data.messages);
-            console.log(messages)
-            const response1 = await axios.get('http://localhost:3000/chat/profile')
-            const mobileNumber = response1.data.mobileNumber;
-            document.getElementById('messages-list').innerHTML=''
+           
+            //if there are new messsages
 
-            messages.forEach((message) => {
-                if (message.sender == mobileNumber) {
-                    document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div class="message outgoing">
-                        <h3 class="sender">${message.sender}</h3>
-                        <p>${message.text}</p>
-                        </div>`)
-                } else {
-                    document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div class="message incoming">
-                        <h3 class="sender">${message.sender}</h3>
-                        <p>${message.text}</p>
-                        </div>`)
-                }
+            if (messages.length) {
+                const response1 = await axios.get('http://localhost:3000/chat/profile')
+                const mobileNumber = response1.data.mobileNumber;
 
-            })
+                messages.forEach((message) => {
+                    if (message.sender == mobileNumber) {
+                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing" >
+                            <h3 class="sender">${message.sender}</h3>
+                            <p>${message.text}</p>
+                            </div>`)
+                    } else {
+                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
+                            <h3 class="sender">${message.sender}</h3>
+                            <p>${message.text}</p>
+                            </div>`)
+                    }
 
-            //scroll down
-            const messagesList = document.getElementById('messages-list')
-            messagesList.scrollTop = messagesList.scrollHeight;
+                })
+
+
+                //scroll down
+                const messagesList = document.getElementById('messages-list')
+                messagesList.scrollTop = messagesList.scrollHeight;
+
+            }
 
         }
 
     } catch (error) {
-
+        console.log(error)
     }
 
 }, 1000)
+
+
+
+//On DOMContentLoaded, make a request for user's message if localstorage is empty and store them into local storage
+
+window.addEventListener('DOMContentLoaded', getmessages)
+
+async function getmessages() {
+    try {
+        if (!localStorage.getItem('messages')) {
+            const response = await axios.get('http://localhost:3000/chat/messages?id=0')
+            const messages = response.data.messages;
+            localStorage.setItem('messages', JSON.stringify(messages))
+
+        }
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
