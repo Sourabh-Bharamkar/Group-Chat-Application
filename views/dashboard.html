@@ -45,12 +45,20 @@
         <div id="messages-coloumn" class="grid-coloumn" style="display: none;">
 
             <div class="coloumn-heading" id="coloumn-2-heading">
-                <h2 id="message-heading"> Lets Chat.. </h2>
+                <div id="message-heading"></div>
                 <button id="add-member-btn" title="add member to group"><img src="/images/add-member.png" alt=""
                         id="add-member-image"></button>
                 <button id="group-members-btn" title="group members"><img src="/images/group-members.png" alt=""
                         id="group-members-image"></button>
+                <button id="three-dots-btn" class="dropdown-btn"> <img src="/images/three-dots.png" alt=""
+                        id="three-dots-image" class="dropdown-btn-image"></button>
 
+            </div>
+
+            <!-- dropdown for three dot button  -->
+            <div id="three-dots-dropdown" class="dropdown">
+                <a href="" id="leave-group">Leave Group</a>
+                
             </div>
 
             <div id="messages-list">
@@ -136,7 +144,7 @@
                     <form id="add-member-form">
 
                         <div class="input-field">
-                            <label for="add-member-mobile-input">User's Mobile no.:</label>
+                            <label for="add-member-mobile-input">Mobile number:</label>
                             <input type="tel" id="add-member-mobile-input" pattern="[0-9]{10}"
                                 placeholder="Enter user's mobile no." required> <br>
 
@@ -158,6 +166,43 @@
 
         </div>
 
+    </div>
+
+
+    <!-- modal for group members  -->
+    <div id="group-members-modal" class="Modal">
+
+        <!-- Modal content -->
+        <div class="Modal-content">
+
+            <div class="Modal-header">
+                <h2>Group Members</h2>
+                <span class="close">&times;</span>
+            </div><br>
+
+            <div class="Modal-body">
+                <div id="group-members-list">
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <div id="admin-actions-list-A" class="">
+        <a href="" class="remove-member">Remove</a>
+        <a href="" id="dismiss-group-admin">Dismiss as a group admin</a>
+
+    </div>
+
+    <div id="admin-actions-list-B" class="">
+        <a href=""  class="remove-member">Remove</a>
+        <a href="" id="make-group-admin">Make group admin</a>
+   
     </div>
 
 

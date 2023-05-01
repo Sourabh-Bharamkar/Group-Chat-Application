@@ -15,10 +15,22 @@ router.get('/chat/groups',userAuthentication.authenticate,chatControllers.getCha
 
 router.post('/chat/group/add-member',userAuthentication.authenticate,chatControllers.postAddMemberToGroup)
 
-router.post('/chat/send-message',userAuthentication.authenticate,chatControllers.postSendMessage)
+router.post('/chat/group/send-message',userAuthentication.authenticate,chatControllers.postSendMessage)
 
 router.post('/chat/group/messages',userAuthentication.authenticate,chatControllers.postGroupMessages)
 
+router.get('/chat/group/members',userAuthentication.authenticate,chatControllers.getGroupMembers)
+
 router.get('/chat/messages',userAuthentication.authenticate,chatControllers.getMessages)
+
+router.get('/chat/group/is_admin',userAuthentication.authenticate,chatControllers.getIsUserGroupAdmin)
+
+router.post('/chat/group/member/remove',userAuthentication.authenticate,chatControllers.postRemoveGroupMember)
+
+router.post('/chat/group/member/dismiss-as-a-group-admin',userAuthentication.authenticate,chatControllers.postDismissAsGroupAdmin)
+
+router.post('/chat/group/member/make-group-admin',userAuthentication.authenticate,chatControllers.postMakeGroupAdmin)
+
+router.post('/chat/group/leave',userAuthentication.authenticate,chatControllers.postLeaveGroup)
 
 module.exports=router;

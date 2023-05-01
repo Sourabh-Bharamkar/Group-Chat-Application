@@ -13,12 +13,7 @@ const ChatGroup=sequelize.define('chatGroup',{
     name:{
         type:Sequelize.STRING,
         
-    },
-
-    createdBy:{
-        type:Sequelize.BIGINT
     }
-
 
 })
 

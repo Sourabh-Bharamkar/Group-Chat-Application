@@ -9,9 +9,11 @@ const cors=require('cors')
 const pageNotFoundMiddleware=require('./middleware/404')
 
 const User=require('./models/user')
-const ChatGroup=require('./models/chatGroup')
 const ForgotPasswordRequest=require('./models/forgotPasswordRequest')
+const ChatGroup=require('./models/chatGroup')
 const Message=require('./models/message')
+const User_ChatGroup=require('./models/user_chatGroup')
+
 
 const userRoutes=require('./routes/user')
 const chatRoutes=require('./routes/chat')
@@ -31,8 +33,8 @@ app.use(pageNotFoundMiddleware)
 User.hasMany(ForgotPasswordRequest)
 ForgotPasswordRequest.belongsTo(User)
 
-User.belongsToMany(ChatGroup,{through:'User_ChatGroup'})
-ChatGroup.belongsToMany(User,{through:'User_ChatGroup'})
+User.belongsToMany(ChatGroup,{through:User_ChatGroup})
+ChatGroup.belongsToMany(User,{through:User_ChatGroup})
 
 ChatGroup.hasMany(Message)
 Message.belongsTo(ChatGroup)

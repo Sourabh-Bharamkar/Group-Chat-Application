@@ -79,6 +79,7 @@ function showAddMemberModal() {
 
 const createGroupModal = document.getElementById('create-group-modal')
 const addMemberModal = document.getElementById('add-member-modal')
+const groupMembersModal = document.getElementById('group-members-modal')
 
 
 
@@ -96,6 +97,7 @@ Array.from(closeButton).forEach((element) => {
 function closeModal() {
     createGroupModal.style.display = 'none';
     addMemberModal.style.display = 'none'
+    groupMembersModal.style.display = 'none'
 
     clearAllInputFields();
 
@@ -145,12 +147,23 @@ async function createGroup(e) {
         e.preventDefault();
         const groupName = document.getElementById('create-group-input').value;
         const response = await axios.post('http://localhost:3000/chat/create-group', { groupName: groupName })
-        const group = response.data.groupDetails;
-        document.getElementById('group-list').insertAdjacentHTML('afterbegin', `<div class="group"><span hidden> ${group.id}</span>${group.name}</div>`)
+        const chatGroup = response.data.groupDetails;
+        document.getElementById('group-list').insertAdjacentHTML('afterbegin',
+            `<div class="group"> 
+        <div> 
+            <img src="/images/group-icon.png"
+            alt="" class="group-icon">
+        </div> 
+        <div class="group-details">
+            <span class="group-id" hidden> ${chatGroup.id}</span> 
+            <span class="group-name">${chatGroup.name}</span>
+        </div> 
+    </div>`)
         clearAllInputFields();
         closeModal();
 
         highlightGroupOnClick()
+        getMessagesOfGroupOnClick();
 
 
     } catch (error) {
@@ -171,7 +184,18 @@ async function showJoinedChatGroups() {
         const chatGroups = response.data.chatGroups;
 
         chatGroups.forEach((chatGroup) => {
-            document.getElementById('group-list').insertAdjacentHTML('beforeend', `<div class="group"><span hidden> ${chatGroup.id}</span>${chatGroup.name}</div>`)
+
+            document.getElementById('group-list').insertAdjacentHTML('beforeend',
+                `<div class="group"> 
+                <div> 
+                    <img src="/images/group-icon.png"
+                    alt="" class="group-icon">
+                </div> 
+                <div class="group-details">
+                    <span class="group-id" hidden> ${chatGroup.id}</span> 
+                    <span class="group-name">${chatGroup.name}</span>
+                </div> 
+            </div>`)
 
         })
 
@@ -205,7 +229,7 @@ async function addMemberToGroup(e) {
         }
 
         if (error.response.data.message == 'user not found') {
-            showError('user does not have an account')
+            showError('User does not have an account. Invite him/her on Chat App.')
         }
 
         function showError(err) {
@@ -233,16 +257,9 @@ async function sendMessage(e) {
         e.preventDefault();
         const message = document.getElementById('message-input').value;
         const groupId = document.getElementById('message-heading').children[0].textContent;
-        const response = await axios.post('http://localhost:3000/chat/send-message', { message: message, groupId: groupId })
+        const response = await axios.post('http://localhost:3000/chat/group/send-message', { message: message, groupId: groupId })
         document.getElementById('message-input').value = '';
 
-        const Message = response.data.messageDetails;
-
-        document.getElementById('messages-list').insertAdjacentHTML('beforeend',
-            `<div class="message outgoing">
-        <h3 class="sender">${Message.sender}</h3>
-        <p>${Message.text}</p>
-        </div>`)
 
         //scroll down
         const messagesList = document.getElementById('messages-list')
@@ -266,8 +283,8 @@ function getMessagesOfGroupOnClick() {
         async function getGroupMessages(e) {
 
             try {
-                console.log('ssssss')
-                //also show messages-list div
+
+                //show messages-list div
                 document.getElementById('messages-coloumn-guide').style.display = 'none'
                 document.getElementById('messages-coloumn').style.display = 'block'
 
@@ -278,12 +295,24 @@ function getMessagesOfGroupOnClick() {
                 const mobileNumber = response1.data.mobileNumber;
 
                 //getting group id of current group
-                console.log(e.target.children[0].textContent)
-                const groupId = e.target.children[0].textContent;
+
+                let groupId;
+
+                const activeGroup = Array.from(document.getElementsByClassName('active-group'))[0];
+
+                groupId = activeGroup.children[1].children[0];
+
 
                 //getting messages from local storage 
                 const localStorageMessages = JSON.parse(localStorage.getItem('messages'))
-                const lastMessageId = localStorageMessages[localStorageMessages.length - 1].id;
+                let lastMessageId;
+
+                if (localStorageMessages.length == 0) {
+                    lastMessageId = 0;
+                }
+                else {
+                    lastMessageId = localStorageMessages[localStorageMessages.length - 1].id;
+                }
 
                 insertMessagesIntoMessagesList(localStorageMessages);
 
@@ -298,16 +327,20 @@ function getMessagesOfGroupOnClick() {
                 function insertMessagesIntoMessagesList(messages) {
 
                     messages.forEach((message) => {
-                        if (message.sender == mobileNumber) {
-                            document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing">
-                            <h3 class="sender">${message.sender}</h3>
-                            <p>${message.text}</p>
-                            </div>`)
-                        } else {
-                            document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
-                            <h3 class="sender">${message.sender}</h3>
-                            <p>${message.text}</p>
-                            </div>`)
+
+                        if (message.chatGroupId == groupId) {
+                            if (message.sender == mobileNumber) {
+                                document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing">
+                                <h3 class="sender">${message.sender}</h3>
+                                <p>${message.text}</p>
+                                </div>`)
+                            } else {
+                                document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
+                                <h3 class="sender">${message.sender}</h3>
+                                <p>${message.text}</p>
+                                </div>`)
+                            }
+
                         }
 
                     })
@@ -327,8 +360,6 @@ function getMessagesOfGroupOnClick() {
         }
     })
 }
-
-
 
 
 
@@ -357,14 +388,17 @@ function highlightGroupOnClick() {
             group.classList.add('active-group')
 
             //adding group name at heading
-            const groupName = group.innerHTML;
+            const groupDetails = group.children[1].innerHTML;
+            console.log(groupDetails)
             const chatHeading = document.getElementById('message-heading')
-            chatHeading.innerHTML = groupName;
+            chatHeading.innerHTML = ''
+            chatHeading.insertAdjacentHTML('afterbegin', groupDetails);
 
         }
 
     })
 }
+
 
 
 //sending a request for every seconds for getting new messages
@@ -376,14 +410,22 @@ setInterval(async () => {
 
             const groupId = document.getElementById('message-heading').children[0].textContent;
 
-            //getting last message id from local storage 
+            //getting last message id from messages list 
             const lastMessage = document.getElementById('messages-list').lastElementChild
-            const lastMessageId=lastMessage.id;
+            let lastMessageId;
+
+            if (lastMessage == null) {
+                lastMessageId = 0;
+
+            }
+            else {
+                lastMessageId = lastMessage.id;
+            }
 
             const response = await axios.post('http://localhost:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
 
             const messages = Array.from(response.data.messages);
-           
+
             //if there are new messsages
 
             if (messages.length) {
@@ -440,3 +482,358 @@ async function getmessages() {
         console.log(error)
     }
 }
+
+
+//group members button functionality
+
+const groupMembersButton = document.getElementById('group-members-btn')
+
+groupMembersButton.addEventListener('click', openGroupMembersModal)
+
+async function openGroupMembersModal() {
+    try {
+        const groupMembersModal = document.getElementById('group-members-modal')
+        groupMembersModal.style.display = 'block';
+
+        //taking group id
+        const groupId = document.getElementById('message-heading').children[0].textContent;
+
+        //check whether user is group admin or not
+        const isAdminResponse = await axios.get(`http://localhost:3000/chat/group/is_admin?groupId=${groupId}`)
+
+        const user = isAdminResponse.data.user;
+        const isUserAdmin = user.admin;
+
+
+        //request for list of all group members
+
+        const response = await axios.get(`http://localhost:3000/chat/group/members?groupId=${groupId}`)
+        const groupMembers = response.data.groupMembers;
+        document.getElementById('group-members-list').innerHTML = '';
+
+        //if user is itself admin
+        if (isUserAdmin) {
+
+            groupMembers.forEach((member) => {
+
+                //if member is itself user
+                if (member.user_chatGroup.admin && member.id == user.userId) {
+                    console.log('ppppppp')
+                    document.getElementById('group-members-list').insertAdjacentHTML('afterbegin',
+                        `<div class="group-member">
+            <div><img src="/images/group-member.png" class="group-member-icon" alt="">
+            </div>
+            <div class="group-member-details">
+            <span hidden>${member.id}</span>
+            <span>You</span><br>
+            <span>${member.mobileNumber}</span>
+            </div>
+            <div class="group-member-labels">
+            <span class="admin"> Admin </span>
+            </div>
+            
+            </div>`)
+                }
+                //if member is not itself user
+                else if (member.user_chatGroup.admin && member.id != user.userId) {
+                    console.log('sssssssss')
+                    document.getElementById('group-members-list').insertAdjacentHTML('afterbegin',
+                        `<div class="group-member">
+                        <div><img src="/images/group-member.png" class="group-member-icon" alt="">
+                        </div>
+                        <div class="group-member-details">
+                        <span hidden>${member.id}</span>
+                        <span>${member.name}</span><br>
+                        <span>${member.mobileNumber}</span>
+                        </div>
+                        <div class="group-member-labels">
+                        <span class="admin"> Admin </span>
+                        <span class="admin-action"> Action </span>
+                        </div>
+        
+                        </div>`)
+                }
+                else {
+                    document.getElementById('group-members-list').insertAdjacentHTML('beforeend',
+                        `<div class="group-member">
+                        <div><img src="/images/group-member.png" class="group-member-icon" alt=""></div>
+                        <div class="group-member-details">
+                        <span hidden>${member.id}</span>
+                        <span>${member.name}</span><br>
+                        <span>${member.mobileNumber}</span>
+                        </div>
+                        <div class="group-member-labels">
+                        <span class="admin-action"> Action </span>
+                        </div>
+                        </div>`)
+
+                }
+
+
+            })
+
+        }
+        else {
+            groupMembers.forEach((member) => {
+
+                if (member.user_chatGroup.admin) {
+                    document.getElementById('group-members-list').insertAdjacentHTML('afterbegin',
+                        `<div class="group-member">
+            <div><img src="/images/group-member.png" class="group-member-icon" alt=""></div>
+            <div class="group-member-details">
+            <span hidden>${member.id}</span>
+            <span>${member.name}</span><br>
+            <span>${member.mobileNumber}</span>
+            </div>
+            <div class="group-member-labels">
+            <span class="admin"> Admin </span>
+            </div>
+            
+            </div>`)
+                }
+                else {
+                    document.getElementById('group-members-list').insertAdjacentHTML('beforeend',
+                        `<div class="group-member">
+            <div><img src="/images/group-member.png" class="group-member-icon" alt=""></div>
+            <div class="group-member-details">
+            <span hidden>${member.id}</span>
+            <span>${member.name}</span><br>
+            <span>${member.mobileNumber}</span>
+            </div>
+            <div class="group-member-labels">
+
+            </div>
+            </div>`)
+                }
+
+
+            })
+        }
+
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+
+//adding functionality for three vertical dots button
+
+window.addEventListener('click', threeDotsDropdown)
+
+function threeDotsDropdown(e) {
+
+    const threeDotDropdown = document.getElementById('three-dots-dropdown');
+
+    if (e.target.classList.contains('dropdown-btn') || e.target.classList.contains('dropdown-btn-image')) {
+        if (threeDotDropdown.style.display == 'block') {
+            return threeDotDropdown.style.display = 'none';
+        }
+        threeDotDropdown.style.display = 'block'
+
+    } else {
+        threeDotDropdown.style.display = 'none'
+
+    }
+
+}
+
+
+
+//adding event listener for admin's action button 
+
+window.addEventListener('click', showAdminActions)
+
+
+function showAdminActions(e) {
+
+    const adminActionsListA = document.getElementById('admin-actions-list-A');
+    const adminActionsListB = document.getElementById('admin-actions-list-B');
+
+    if (e.target.classList.contains('admin-action') && e.target.parentElement.children[0].classList.contains('admin')) {
+
+        if (adminActionsListA.style.display == 'block') {
+
+            return adminActionsListA.style.display = 'none';
+        }
+        else {
+            adminActionsListA.style.display = 'block'
+            adminActionsListB.style.display = 'none'
+        }
+
+    }
+
+    else if (e.target.classList.contains('admin-action') && e.target.parentElement.children[0].classList.contains('admin-action')) {
+
+        if (adminActionsListB.style.display == 'block') {
+
+            return adminActionsListB.style.display = 'none';
+        }
+        else {
+            adminActionsListB.style.display = 'block'
+            adminActionsListA.style.display = 'none'
+
+        }
+
+    }
+
+    else {
+
+        adminActionsListA.style.display = 'none';
+        adminActionsListB.style.display = 'none';
+
+        const activeMembers = Array.from(document.getElementsByClassName('active-member'))
+        if (activeMembers.length) {
+            document.getElementsByClassName('active-member')[0].classList.remove('active-member')
+
+        }
+
+
+    }
+}
+
+
+
+//when group admin clicks on action button, make corresponding member as acitive member
+
+window.addEventListener('click', highlightGroupMember)
+
+function highlightGroupMember(e) {
+
+    if (e.target.classList.contains('admin-action')) {
+
+
+        const groupMembers = Array.from(document.getElementsByClassName('group-member'))
+        groupMembers.forEach((groupMember) => {
+            if (groupMember.classList.contains('active-member')) {
+                groupMember.classList.remove('active-member')
+            }
+        })
+
+        //make that group member highlighted
+        console.log(e.target.parentElement.parentElement)
+        e.target.parentElement.parentElement.classList.add('active-member')
+
+    }
+
+}
+
+
+//remove member from group
+
+const removeMemberBtns = Array.from(document.getElementsByClassName('remove-member'))
+
+removeMemberBtns.forEach((removeMemberBtn) => {
+
+    removeMemberBtn.addEventListener('click', removeMember)
+
+    async function removeMember(e) {
+
+        try {
+            e.preventDefault();
+            console.log('ssss')
+            const member = document.getElementsByClassName('active-member')[0];
+            const memberId = member.children[1].children[0].textContent;
+            const groupId = document.getElementById('message-heading').children[0].textContent;
+
+            const response = await axios.post('http://localhost:3000/chat/group/member/remove', { groupId: groupId, memberId: memberId })
+
+            //remove the member from the group members list
+            member.remove()
+            console.log(response.data.message)
+
+
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+})
+
+
+//dismiss as a group admin 
+const dismissGroupAdminBtn = document.getElementById('dismiss-group-admin')
+
+dismissGroupAdminBtn.addEventListener('click', dismissAsGroupAdmin)
+
+async function dismissAsGroupAdmin(e) {
+    try {
+        e.preventDefault();
+        const member = document.getElementsByClassName('active-member')[0];
+        const memberId = member.children[1].children[0].textContent;
+        const groupId = document.getElementById('message-heading').children[0].textContent;
+
+        await axios.post('http://localhost:3000/chat/group/member/dismiss-as-a-group-admin', { memberId, groupId })
+
+        //remove admin tag from member
+        const adminTagOfMember = member.children[2].children[0];
+        adminTagOfMember.remove();
+
+        console.log('dissmissed as a group admin')
+
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+
+//make group admin to member of group
+const makeGroupAdminBtn = document.getElementById('make-group-admin')
+
+makeGroupAdminBtn.addEventListener('click', makeGroupAdmin)
+
+async function makeGroupAdmin(e) {
+    try {
+        e.preventDefault();
+        const member = document.getElementsByClassName('active-member')[0];
+        const memberId = member.children[1].children[0].textContent;
+        const groupId = document.getElementById('message-heading').children[0].textContent;
+
+        await axios.post('http://localhost:3000/chat/group/member/make-group-admin', { memberId, groupId })
+
+        //remove admin tag from member
+        const groupMembersLabels = member.children[2];
+
+        groupMembersLabels.insertAdjacentHTML('afterbegin', '<span class="admin"> Admin </span>')
+
+        console.log('made member as a group admin')
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+//leave group functionality
+
+const leaveGroupBtn = document.getElementById('leave-group')
+
+leaveGroupBtn.addEventListener('click', leaveGroup)
+
+async function leaveGroup(e) {
+    try {
+        console.log('leave group request is made')
+        e.preventDefault();
+
+        const groupId = document.getElementById('message-heading').children[0].textContent;
+        const response = await axios.post('http://localhost:3000/chat/group/leave', { groupId: groupId})
+
+        //remove the group from ui
+        const activeGroup=Array.from(document.getElementsByClassName('active-group'))
+        activeGroup[0].remove();
+
+        document.getElementById('messages-coloumn').style.display='none'
+        document.getElementById('messages-coloumn-guide').style.display='block'
+        
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
