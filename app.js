@@ -43,7 +43,7 @@ Message.belongsTo(ChatGroup)
 sequelize.sync()
     .then(() => {
         app.listen(3000)
-        console.log('Listening on PORT 3000...')
+        console.log('Listening on PORT 3000')
     }).catch((error) => {
         console.log(error)
     })
