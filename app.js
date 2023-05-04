@@ -2,21 +2,21 @@ const express = require('express');
 const app = express();
 
 const sequelize = require('./util/database');
-const bodyParser=require('body-parser')
-const path=require('path')
-const cors=require('cors')
+const bodyParser = require('body-parser')
+const path = require('path')
+const cors = require('cors')
 
-const pageNotFoundMiddleware=require('./middleware/404')
+const pageNotFoundMiddleware = require('./middleware/404')
 
-const User=require('./models/user')
-const ForgotPasswordRequest=require('./models/forgotPasswordRequest')
-const ChatGroup=require('./models/chatGroup')
-const Message=require('./models/message')
-const User_ChatGroup=require('./models/user_chatGroup')
+const User = require('./models/user')
+const ForgotPasswordRequest = require('./models/forgotPasswordRequest')
+const ChatGroup = require('./models/chatGroup')
+const Message = require('./models/message')
+const User_ChatGroup = require('./models/user_chatGroup')
 
 
-const userRoutes=require('./routes/user')
-const chatRoutes=require('./routes/chat')
+const userRoutes = require('./routes/user')
+const chatRoutes = require('./routes/chat')
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -33,8 +33,8 @@ app.use(pageNotFoundMiddleware)
 User.hasMany(ForgotPasswordRequest)
 ForgotPasswordRequest.belongsTo(User)
 
-User.belongsToMany(ChatGroup,{through:User_ChatGroup})
-ChatGroup.belongsToMany(User,{through:User_ChatGroup})
+User.belongsToMany(ChatGroup, { through: User_ChatGroup })
+ChatGroup.belongsToMany(User, { through: User_ChatGroup })
 
 ChatGroup.hasMany(Message)
 Message.belongsTo(ChatGroup)
@@ -42,8 +42,10 @@ Message.belongsTo(ChatGroup)
 
 sequelize.sync()
     .then(() => {
-        app.listen(3000)
-        console.log('Listening on PORT 3000')
+        app.listen(3000, () => {
+            console.log('Listening on PORT 3000')
+        })
+
     }).catch((error) => {
         console.log(error)
     })
