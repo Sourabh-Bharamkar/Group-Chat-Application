@@ -1,6 +1,9 @@
+const socket = io()
 
 //setting header common to all requests
 axios.defaults.headers.common['Authorization'] = localStorage.getItem('token')
+
+
 
 // Authenticate and get profile of the user on dom content loaded 
 
@@ -30,6 +33,59 @@ async function getUserProfile() {
 }
 
 
+//adding chat groups on dom content loaded 
+
+window.addEventListener('DOMContentLoaded', showJoinedChatGroups)
+
+async function showJoinedChatGroups() {
+    try {
+        const response = await axios.get('http://3.91.209.187:3000/chat/groups')
+        const chatGroups = response.data.chatGroups;
+
+        chatGroups.forEach((chatGroup) => {
+
+            document.getElementById('group-list').insertAdjacentHTML('beforeend',
+                `<div class="group" id=group-${chatGroup.id}> 
+                <div> 
+                    <img src="/images/group-icon.png"
+                    alt="" class="group-icon">
+                </div> 
+                <div class="group-details">
+                    <span class="group-id" hidden> ${chatGroup.id}</span> 
+                    <span class="group-name">${chatGroup.name}</span>
+                </div> 
+            </div>`)
+
+        })
+
+        highlightGroupOnClick();
+        getMessagesOfGroupOnClick();
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+
+//On DOMContentLoaded, make a request for user's message if localstorage and store them into local storage
+
+window.addEventListener('DOMContentLoaded', getmessages)
+
+async function getmessages() {
+    try {
+
+        const response = await axios.get('http://3.91.209.187:3000/chat/messages')
+        const messages = response.data.messages;
+        localStorage.setItem('messages', JSON.stringify(messages))
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
 
 //search box functionality
 
@@ -56,7 +112,7 @@ function searchUsers() {
 
 
 
-//adding create group button functionality
+//when user clicks on create group button show create group modal
 
 const createGroupButton = document.getElementById('create-group-btn')
 createGroupButton.addEventListener('click', showCreateGroupModal)
@@ -75,12 +131,12 @@ function showAddMemberModal() {
     addMemberModal.style.display = 'block'
 }
 
+
 // Get the modal
 
 const createGroupModal = document.getElementById('create-group-modal')
 const addMemberModal = document.getElementById('add-member-modal')
 const groupMembersModal = document.getElementById('group-members-modal')
-
 
 
 // Get the <span> element that closes the modal
@@ -174,40 +230,6 @@ async function createGroup(e) {
 
 
 
-//adding chat groups on dom content loaded 
-
-window.addEventListener('DOMContentLoaded', showJoinedChatGroups)
-
-async function showJoinedChatGroups() {
-    try {
-        const response = await axios.get('http://3.91.209.187:3000/chat/groups')
-        const chatGroups = response.data.chatGroups;
-
-        chatGroups.forEach((chatGroup) => {
-
-            document.getElementById('group-list').insertAdjacentHTML('beforeend',
-                `<div class="group"> 
-                <div> 
-                    <img src="/images/group-icon.png"
-                    alt="" class="group-icon">
-                </div> 
-                <div class="group-details">
-                    <span class="group-id" hidden> ${chatGroup.id}</span> 
-                    <span class="group-name">${chatGroup.name}</span>
-                </div> 
-            </div>`)
-
-        })
-
-        highlightGroupOnClick();
-        getMessagesOfGroupOnClick();
-
-
-    } catch (error) {
-        console.log(error)
-    }
-}
-
 
 //add member to group
 const addMemberform = document.getElementById('add-member-form')
@@ -248,7 +270,7 @@ async function addMemberToGroup(e) {
 
 
 
-//send message form functionality
+//send message functionality
 const sendMessageForm = document.getElementById('send-message-form')
 sendMessageForm.addEventListener('submit', sendMessage)
 
@@ -260,6 +282,10 @@ async function sendMessage(e) {
         const response = await axios.post('http://3.91.209.187:3000/chat/group/send-message', { message: message, groupId: groupId })
         document.getElementById('message-input').value = '';
 
+        //add socket event send message 
+        socket.emit('sendMessage', () => {
+            console.log('send message socket event is fired')
+        })
 
         //scroll down
         const messagesList = document.getElementById('messages-list')
@@ -270,6 +296,7 @@ async function sendMessage(e) {
         console.log(error)
     }
 }
+
 
 
 //get messages on click on any group
@@ -297,15 +324,29 @@ function getMessagesOfGroupOnClick() {
                 //getting group id of current group
 
                 let groupId;
-
                 const activeGroup = Array.from(document.getElementsByClassName('active-group'))[0];
+                groupId = activeGroup.children[1].children[0].textContent;
 
-                groupId = activeGroup.children[1].children[0];
+
+                //if user is admin of group, show add member button 
+
+                const isAdminResponse = await axios.get(`http://3.91.209.187:3000/chat/group/is_admin?groupId=${groupId}`)
+
+                const user = isAdminResponse.data.user;
+                const isUserAdmin = user.admin;
+
+                if (!isUserAdmin) {
+
+                    document.getElementById('add-member-btn').style.display = 'none'
+                } else {
+                    document.getElementById('add-member-btn').style.display = 'block'
+                }
 
 
                 //getting messages from local storage 
                 const localStorageMessages = JSON.parse(localStorage.getItem('messages'))
                 let lastMessageId;
+
 
                 if (localStorageMessages.length == 0) {
                     lastMessageId = 0;
@@ -319,8 +360,6 @@ function getMessagesOfGroupOnClick() {
                 const response = await axios.post('http://3.91.209.187:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
 
                 const messages = Array.from(response.data.messages);
-                console.log(messages);
-
 
                 insertMessagesIntoMessagesList(messages);
 
@@ -329,9 +368,10 @@ function getMessagesOfGroupOnClick() {
                     messages.forEach((message) => {
 
                         if (message.chatGroupId == groupId) {
+                            console.log(message)
                             if (message.sender == mobileNumber) {
                                 document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing">
-                                <h3 class="sender">${message.sender}</h3>
+                                <h3 class="sender">You</h3>
                                 <p>${message.text}</p>
                                 </div>`)
                             } else {
@@ -399,89 +439,6 @@ function highlightGroupOnClick() {
     })
 }
 
-
-
-//sending a request for every seconds for getting new messages
-
-setInterval(async () => {
-
-    try {
-        if (document.getElementById('messages-coloumn-guide').style.display == 'none') {
-
-            const groupId = document.getElementById('message-heading').children[0].textContent;
-
-            //getting last message id from messages list 
-            const lastMessage = document.getElementById('messages-list').lastElementChild
-            let lastMessageId;
-
-            if (lastMessage == null) {
-                lastMessageId = 0;
-
-            }
-            else {
-                lastMessageId = lastMessage.id;
-            }
-
-            const response = await axios.post('http://3.91.209.187:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
-
-            const messages = Array.from(response.data.messages);
-
-            //if there are new messsages
-
-            if (messages.length) {
-                const response1 = await axios.get('http://3.91.209.187:3000/chat/profile')
-                const mobileNumber = response1.data.mobileNumber;
-
-                messages.forEach((message) => {
-                    if (message.sender == mobileNumber) {
-                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing" >
-                            <h3 class="sender">${message.sender}</h3>
-                            <p>${message.text}</p>
-                            </div>`)
-                    } else {
-                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
-                            <h3 class="sender">${message.sender}</h3>
-                            <p>${message.text}</p>
-                            </div>`)
-                    }
-
-                })
-
-
-                //scroll down
-                const messagesList = document.getElementById('messages-list')
-                messagesList.scrollTop = messagesList.scrollHeight;
-
-            }
-
-        }
-
-    } catch (error) {
-        console.log(error)
-    }
-
-}, 1000)
-
-
-
-//On DOMContentLoaded, make a request for user's message if localstorage is empty and store them into local storage
-
-window.addEventListener('DOMContentLoaded', getmessages)
-
-async function getmessages() {
-    try {
-        if (!localStorage.getItem('messages')) {
-            const response = await axios.get('http://3.91.209.187:3000/chat/messages?id=0')
-            const messages = response.data.messages;
-            localStorage.setItem('messages', JSON.stringify(messages))
-
-        }
-
-
-    } catch (error) {
-        console.log(error)
-    }
-}
 
 
 //group members button functionality
@@ -713,12 +670,12 @@ function highlightGroupMember(e) {
         })
 
         //make that group member highlighted
-        console.log(e.target.parentElement.parentElement)
         e.target.parentElement.parentElement.classList.add('active-member')
 
     }
 
 }
+
 
 
 //remove member from group
@@ -733,7 +690,7 @@ removeMemberBtns.forEach((removeMemberBtn) => {
 
         try {
             e.preventDefault();
-            console.log('ssss')
+           
             const member = document.getElementsByClassName('active-member')[0];
             const memberId = member.children[1].children[0].textContent;
             const groupId = document.getElementById('message-heading').children[0].textContent;
@@ -742,7 +699,7 @@ removeMemberBtns.forEach((removeMemberBtn) => {
 
             //remove the member from the group members list
             member.remove()
-            console.log(response.data.message)
+          
 
 
         } catch (error) {
@@ -809,6 +766,7 @@ async function makeGroupAdmin(e) {
 }
 
 
+
 //leave group functionality
 
 const leaveGroupBtn = document.getElementById('leave-group')
@@ -821,15 +779,15 @@ async function leaveGroup(e) {
         e.preventDefault();
 
         const groupId = document.getElementById('message-heading').children[0].textContent;
-        const response = await axios.post('http://3.91.209.187:3000/chat/group/leave', { groupId: groupId})
+        const response = await axios.post('http://3.91.209.187:3000/chat/group/leave', { groupId: groupId })
 
         //remove the group from ui
-        const activeGroup=Array.from(document.getElementsByClassName('active-group'))
+        const activeGroup = Array.from(document.getElementsByClassName('active-group'))
         activeGroup[0].remove();
 
-        document.getElementById('messages-coloumn').style.display='none'
-        document.getElementById('messages-coloumn-guide').style.display='block'
-        
+        document.getElementById('messages-coloumn').style.display = 'none'
+        document.getElementById('messages-coloumn-guide').style.display = 'block'
+
 
     } catch (error) {
         console.log(error)
@@ -837,3 +795,74 @@ async function leaveGroup(e) {
 
 }
 
+
+
+//socket event for receive message
+
+socket.on('receiveMessage', async () => {
+
+    try {
+
+        console.log('receiveMessage socket event happened')
+        if (document.getElementById('messages-coloumn-guide').style.display == 'none') {
+
+            const groupId = document.getElementById('message-heading').children[0].textContent;
+
+            //getting last message id from messages list 
+            const lastMessage = document.getElementById('messages-list').lastElementChild
+            let lastMessageId;
+
+            if (lastMessage == null) {
+                lastMessageId = 0;
+
+            }
+            else {
+                lastMessageId = lastMessage.id;
+            }
+
+
+            const response = await axios.post('http://3.91.209.187:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
+
+            const messages = Array.from(response.data.messages);
+
+
+
+            //if there are new messsages
+
+            if (messages.length) {
+                const response1 = await axios.get('http://3.91.209.187:3000/chat/profile')
+                const mobileNumber = response1.data.mobileNumber;
+
+                messages.forEach((message) => {
+                    if (message.sender == mobileNumber) {
+                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing" >
+                                <h3 class="sender">You</h3>
+                                <p>${message.text}</p>
+                                </div>`)
+                    } else {
+                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
+                                <h3 class="sender">${message.sender}</h3>
+                                <p>${message.text}</p>
+                                </div>`)
+                    }
+
+                })
+
+
+                //scroll down
+                const messagesList = document.getElementById('messages-list')
+                messagesList.scrollTop = messagesList.scrollHeight;
+
+            }
+
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+
+})
+
+
+
+//show new messages count on group name plate

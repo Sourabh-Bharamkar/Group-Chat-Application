@@ -1,10 +1,16 @@
 const express = require('express');
 const app = express();
+const http=require('http')
+const server=http.createServer(app)
+const socketio = require("socket.io");
+const io = socketio(server)
+
 
 const sequelize = require('./util/database');
 const bodyParser = require('body-parser')
 const path = require('path')
 const cors = require('cors')
+
 
 const pageNotFoundMiddleware = require('./middleware/404')
 
@@ -24,6 +30,16 @@ app.use(bodyParser.json())
 
 app.use(express.static(path.join(__dirname, 'public')))
 
+
+io.on('connection', (socket) => {
+    console.log('a user connected to socket');
+    socket.on('sendMessage',()=>{
+        console.log('sendMessage event is fired from client')
+       io.sockets.emit('receiveMessage')
+    })
+  });
+
+
 app.use(userRoutes)
 app.use(chatRoutes)
 
@@ -42,7 +58,7 @@ Message.belongsTo(ChatGroup)
 
 sequelize.sync()
     .then(() => {
-        app.listen(3000, () => {
+        server.listen(3000, () => {
             console.log('Listening on PORT 3000')
         })
 

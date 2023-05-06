@@ -171,7 +171,8 @@ div#create-group {
 
 }
 
-#coloumn-2-heading div {
+
+#message-heading {
 
   font-size: 20px;
   margin-left: 10px;
@@ -179,9 +180,15 @@ div#create-group {
   
 }
 
+#coloumn-2-heading-btns{
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 #add-member-btn {
   border: none;
-  margin-left: auto;
   background-color: transparent;
 }
 
@@ -192,6 +199,7 @@ div#create-group {
 
 #group-members-btn {
   border: none;
+
   margin-left: 20px;
   background-color: transparent;
 }

@@ -91,7 +91,7 @@ exports.postSendMessage = async (req, res, next) => {
         console.log('Inside postSendMessage controller')
         const { message, groupId } = req.body;
         const chatGroup = await ChatGroup.findOne({ where: { id: groupId } })
-        const messageDetails = await chatGroup.createMessage({ text: message, sender: req.user.mobileNumber })
+        const messageDetails = await chatGroup.createMessage({ text: message, sender: req.user.mobileNumber, userId: req.user.id })
         console.log(req.user.mobileNumber)
         res.status(201).json({ success: true, message: 'message saved successfully', messageDetails })
 
@@ -129,14 +129,6 @@ exports.postGroupMessages = async (req, res, next) => {
 exports.getMessages = async (req, res, next) => {
     try {
 
-        let messageId;
-        if (req.query.id == undefined) {
-            messageId = 0;
-
-        } else {
-            messageId = req.query.id;
-        }
-
         const chatGroups = await req.user.getChatGroups()
         const chatGroupsId = [];
         chatGroups.forEach((chatGroup) => {
@@ -144,14 +136,30 @@ exports.getMessages = async (req, res, next) => {
 
         })
 
-        const messages = await Message.findAll({
+        const messageCount = await Message.count({
             where: {
-                [Op.and]: [{ chatGroupId: chatGroupsId }, { chatGroupId: { [Op.gt]: messageId } }]
+                chatGroupId: chatGroupsId
 
             }
         })
 
+        let offset;
+        if (messageCount > 100) {
+
+            offset = messageCount - 100;
+        } else {
+            offset = 0;
+        }
+
+        const messages = await Message.findAll({
+            where: {
+                chatGroupId: chatGroupsId
+            }
+        }, { offset: offset, limit: 100 })
+
+
         res.status(200).json({ success: true, messages })
+
 
     } catch (error) {
         console.log(error)
@@ -223,6 +231,7 @@ exports.postDismissAsGroupAdmin = async (req, res, next) => {
     }
 }
 
+
 exports.postMakeGroupAdmin = async (req, res, next) => {
     try {
 
@@ -238,6 +247,7 @@ exports.postMakeGroupAdmin = async (req, res, next) => {
     }
 }
 
+
 exports.postLeaveGroup = async (req, res, next) => {
     try {
 
@@ -251,18 +261,18 @@ exports.postLeaveGroup = async (req, res, next) => {
         if (!groupAdmin) {
             const groupMembers = await User_ChatGroup.findAll({ where: { chatGroupId: groupId } })
 
-            if(groupMembers.length==0){
-                await ChatGroup.destroy({where:{id:groupId}})
-                return res.status(200).json({success:true,message:'user removed from group'})
+            if (groupMembers.length == 0) {
+                await ChatGroup.destroy({ where: { id: groupId } })
+                return res.status(200).json({ success: true, message: 'user removed from group' })
             }
 
             const groupMember1 = groupMembers[0]
             await groupMember1.update({ admin: true })
-            return res.status(200).json({success:true,message:'user removed from group'})
+            return res.status(200).json({ success: true, message: 'user removed from group' })
 
         }
 
-        res.status(200).json({success:true,message:'user removed from group'})
+        res.status(200).json({ success: true, message: 'user removed from group' })
 
     } catch (error) {
         console.log(error)
