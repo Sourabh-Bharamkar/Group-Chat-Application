@@ -836,4 +836,3 @@ async function leaveGroup(e) {
     }
 
 }
-
