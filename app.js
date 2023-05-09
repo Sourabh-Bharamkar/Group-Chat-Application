@@ -10,6 +10,7 @@ const sequelize = require('./util/database');
 const bodyParser = require('body-parser')
 const path = require('path')
 const cors = require('cors')
+const fileUpload = require('express-fileupload');
 
 
 const pageNotFoundMiddleware = require('./middleware/404')
@@ -24,6 +25,7 @@ const User_ChatGroup = require('./models/user_chatGroup')
 const userRoutes = require('./routes/user')
 const chatRoutes = require('./routes/chat')
 
+app.use(fileUpload())
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())

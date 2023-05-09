@@ -45,7 +45,7 @@
         <div id="messages-coloumn" class="grid-coloumn" style="display: none;">
 
             <div class="coloumn-heading" id="coloumn-2-heading">
-                
+
                 <div id="message-heading"></div>
                 <div id="coloumn-2-heading-btns">
                     <button id="add-member-btn" title="add member to group"><img src="/images/add-member.png" alt=""
@@ -70,6 +70,9 @@
             </div>
 
             <div id="message-input-field">
+
+                <button id="paper-clip-btn"> <img src="/images/paper-clip.png" alt="" id="paper-clip-image"></button>
+
                 <form action="" id="send-message-form">
                     <input type="text" id="message-input" placeholder="Type a message" required>
                     <button type="submit" id="message-send-btn"><img src="/images/message-send-button.png"
@@ -195,6 +198,43 @@
         </div>
 
     </div>
+
+
+
+    <!-- modal for paper clip button  -->
+
+    <div id="file-share-modal" class="Modal">
+
+        <!-- Modal content -->
+        <div class="Modal-content">
+
+            <div class="Modal-header">
+                <h2>Share your file</h2>
+                <span class="close">&times;</span>
+            </div><br>
+
+            <div class="Modal-body">
+
+                <div class="form-container">
+                    <form action="" id="file-share-form">
+
+                        <input type="file" id="myFile">
+                        <span id="file-share-message"></span><br>
+                        <span id="file-share-error-message"></span><br>
+                        <button type="submit"> Submit</button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
 
 
     <div id="admin-actions-list-A" class="">

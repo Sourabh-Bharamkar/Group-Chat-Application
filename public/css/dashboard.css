@@ -283,9 +283,16 @@ div#messages-list::-webkit-scrollbar {
   color: teal;
 }
 
+.message-image{
+  width: 200px;
+  height: 200px;
+}
+
 
 #message-input-field {
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   margin-top: 0px;
   margin-bottom: 2px;
@@ -300,13 +307,24 @@ div#messages-list::-webkit-scrollbar {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 70%;
 
 }
 
+#paper-clip-btn{
+  border: none;
+
+}
+
+#paper-clip-image{
+  width: 25px;
+  height: 25px;
+  background-color: transparent;
+}
 
 #message-input-field input {
   padding: 8px 15px;
-  width: 65%;
+  width: 100%;
   border: none;
   background-color: white;
   border: 1px solid rgb(208, 208, 208);
@@ -559,4 +577,14 @@ div#messages-list::-webkit-scrollbar {
 
 .active-member{
   background-color:#f6f6f2;
+}
+
+/* file share modal  */
+#file-share-message{
+  color: green;
+  
+}
+
+#file-share-error-message{
+  color: rgb(248, 31, 31);
 }

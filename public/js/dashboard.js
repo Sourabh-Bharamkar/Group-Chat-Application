@@ -112,7 +112,9 @@ function searchUsers() {
 
 
 
-//when user clicks on create group button show create group modal
+//modals functionality 
+
+//when user clicks on create group button, show create group modal
 
 const createGroupButton = document.getElementById('create-group-btn')
 createGroupButton.addEventListener('click', showCreateGroupModal)
@@ -122,6 +124,7 @@ function showCreateGroupModal() {
     createGroupModal.style.display = 'block'
 }
 
+//when user clicks on add member button, show addMemberModal 
 
 const addMemberButton = document.getElementById('add-member-btn')
 addMemberButton.addEventListener('click', showAddMemberModal)
@@ -132,11 +135,24 @@ function showAddMemberModal() {
 }
 
 
+//open file share modal when user clicks on paper clip button 
+
+const paperClipBtn = document.getElementById('paper-clip-btn')
+
+paperClipBtn.addEventListener('click', showFileShareModal)
+
+function showFileShareModal() {
+    document.getElementById('file-share-modal').style.display = 'block';
+
+}
+
+
 // Get the modal
 
 const createGroupModal = document.getElementById('create-group-modal')
 const addMemberModal = document.getElementById('add-member-modal')
 const groupMembersModal = document.getElementById('group-members-modal')
+const fileShareModal = document.getElementById('file-share-modal')
 
 
 // Get the <span> element that closes the modal
@@ -154,6 +170,7 @@ function closeModal() {
     createGroupModal.style.display = 'none';
     addMemberModal.style.display = 'none'
     groupMembersModal.style.display = 'none'
+    fileShareModal.style.display = 'none'
 
     clearAllInputFields();
 
@@ -177,6 +194,7 @@ function clearAllInputFields() {
     document.getElementById('create-group-input').value = ''
 
 }
+
 
 
 
@@ -369,16 +387,52 @@ function getMessagesOfGroupOnClick() {
 
                         if (message.chatGroupId == groupId) {
                             console.log(message)
-                            if (message.sender == mobileNumber) {
-                                document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing">
-                                <h3 class="sender">You</h3>
-                                <p>${message.text}</p>
-                                </div>`)
-                            } else {
-                                document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
-                                <h3 class="sender">${message.sender}</h3>
-                                <p>${message.text}</p>
-                                </div>`)
+
+                            if (!message.fileURL) {
+
+                                if (message.sender == mobileNumber) {
+                                    document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing" >
+                                            <h3 class="sender">You</h3>
+                                            <p>${message.text}</p>
+                                            </div>`)
+                                } else {
+                                    document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
+                                            <h3 class="sender">${message.sender}</h3>
+                                            <p>${message.text}</p>
+                                            </div>`)
+                                }
+
+                            }
+                            else {
+                                let mediaHTML;
+                                if (message.type.includes('image')) {
+                                    mediaHTML = `<img src=${message.fileURL} alt="image" width="250" height="250">`
+                                }
+                                else if (message.type.includes('video')) {
+                                    mediaHTML = `<video width="320" height="240" controls>
+                                    <source src=${message.fileURL} type="video/mp4">
+                                    <source src=${message.fileURL} type="video/ogg">
+                                  </video>`
+                                }
+                                else if (message.type.includes('audio')) {
+                                    mediaHTML = `<audio controls>
+                                    <source src=${message.fileURL} type="audio/ogg">
+                                    <source src=${message.fileURL} type="audio/mpeg">
+                                  </audio>`
+                                }
+
+
+                                if (message.sender == mobileNumber) {
+                                    document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing" >
+                                            <h3 class="sender">You</h3>
+                                            ${mediaHTML}
+                                            </div>`)
+                                } else {
+                                    document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
+                                            <h3 class="sender">${message.sender}</h3>
+                                            ${mediaHTML}
+                                            </div>`)
+                                }
                             }
 
                         }
@@ -690,7 +744,7 @@ removeMemberBtns.forEach((removeMemberBtn) => {
 
         try {
             e.preventDefault();
-           
+
             const member = document.getElementsByClassName('active-member')[0];
             const memberId = member.children[1].children[0].textContent;
             const groupId = document.getElementById('message-heading').children[0].textContent;
@@ -699,7 +753,7 @@ removeMemberBtns.forEach((removeMemberBtn) => {
 
             //remove the member from the group members list
             member.remove()
-          
+
 
 
         } catch (error) {
@@ -834,16 +888,51 @@ socket.on('receiveMessage', async () => {
                 const mobileNumber = response1.data.mobileNumber;
 
                 messages.forEach((message) => {
-                    if (message.sender == mobileNumber) {
-                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing" >
-                                <h3 class="sender">You</h3>
-                                <p>${message.text}</p>
-                                </div>`)
-                    } else {
-                        document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
-                                <h3 class="sender">${message.sender}</h3>
-                                <p>${message.text}</p>
-                                </div>`)
+
+                    if (!message.fileURL) {
+                        if (message.sender == mobileNumber) {
+                            document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing" >
+                                    <h3 class="sender">You</h3>
+                                    <p>${message.text}</p>
+                                    </div>`)
+                        } else {
+                            document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
+                                    <h3 class="sender">${message.sender}</h3>
+                                    <p>${message.text}</p>
+                                    </div>`)
+                        }
+
+                    }
+                    else {
+
+                        let mediaHTML;
+                        if (message.type.includes('image')) {
+                            mediaHTML = `<img src=${message.fileURL} alt="image" width="250" height="250">`
+                        }
+                        else if (message.type.includes('video')) {
+                            mediaHTML = `<video width="320" height="240" controls>
+                                    <source src=${message.fileURL} type="video/mp4">
+                                    <source src=${message.fileURL} type="video/ogg">
+                                  </video>`
+                        }
+                        else if (message.type.includes('audio')) {
+                            mediaHTML = `<audio controls>
+                                    <source src=${message.fileURL} type="audio/ogg">
+                                    <source src=${message.fileURL} type="audio/mpeg">
+                                  </audio>`
+                        }
+
+                        if (message.sender == mobileNumber) {
+                            document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing" >
+                                    <h3 class="sender">You</h3>
+                                    ${mediaHTML}
+                                    </div>`)
+                        } else {
+                            document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
+                                    <h3 class="sender">${message.sender}</h3>
+                                    ${mediaHTML}
+                                    </div>`)
+                        }
                     }
 
                 })
@@ -865,4 +954,69 @@ socket.on('receiveMessage', async () => {
 
 
 
-//show new messages count on group name plate
+// file share functionality
+const fileSharefrom = document.getElementById('file-share-form')
+
+fileSharefrom.addEventListener('submit', sendFile)
+
+async function sendFile(e) {
+
+    try {
+
+        e.preventDefault();
+        const groupId = document.getElementById('message-heading').children[0].textContent;
+        const file = document.getElementById('myFile').files[0]
+        console.log(file)
+        let formData = new FormData();
+        formData.set('file', file);
+        document.getElementById('file-share-message').textContent='Sending....'
+        const response = await axios.post(`http://3.91.209.187:3000/chat/group/upload-file?groupId=${groupId}`, formData)
+        const messageDetails = response.data.messageDetails;
+        const fileURL = messageDetails.fileURL;
+
+        //add socket event send message 
+        socket.emit('sendMessage', () => {
+            console.log('send message socket event is fired')
+        })
+
+        //showing file share success message
+        document.getElementById('file-share-message').textContent='sent successfully'
+        document.getElementById('myFile').value='';
+        setTimeout(() => {
+            document.getElementById('file-share-message').textContent=''
+        }, 3000);
+        
+        console.log(fileURL)
+
+    } catch (error) {
+        console.log(error)
+        //showing error message 
+        document.getElementById('file-share-message').textContent=''
+        document.getElementById('file-share-error-message').textContent='*something went wrong...'
+        document.getElementById('myFile').value=''
+        setTimeout(() => {
+            document.getElementById('file-share-error-message').textContent=''
+        }, 3000);
+    }
+}
+
+
+
+
+//when you get a new message store it into local storage, check length of messages array
+//if message array length is greater than 100 remove first messages
+
+//on DOMContentLoaded join socket to all chatgroups (rooms)
+//when user sends a message to any room, send message to that room only
+
+//socket.emit('join room',rooms)
+
+//when any user is added in the group, emit an event and send it every socket connection 
+//and on getting this event call backend api for getting any new groups
+
+//store chatgroups in localstorage like messages 
+
+//***********************************************//
+
+
+

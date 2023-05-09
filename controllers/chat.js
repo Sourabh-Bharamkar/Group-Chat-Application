@@ -4,6 +4,8 @@ const ChatGroup = require('../models/chatGroup')
 const Message = require('../models/message')
 const User_ChatGroup = require('../models/user_chatGroup')
 const { Op } = require('sequelize')
+const S3Services=require('../services/S3-services')
+const AWS=require('aws-sdk')
 
 exports.getDashboard = (req, res, next) => {
     res.sendFile(path.join(__dirname, '../', 'views/dashboard.html'))
@@ -91,7 +93,7 @@ exports.postSendMessage = async (req, res, next) => {
         console.log('Inside postSendMessage controller')
         const { message, groupId } = req.body;
         const chatGroup = await ChatGroup.findOne({ where: { id: groupId } })
-        const messageDetails = await chatGroup.createMessage({ text: message, sender: req.user.mobileNumber, userId: req.user.id })
+        const messageDetails = await chatGroup.createMessage({ text: message, sender: req.user.mobileNumber })
         console.log(req.user.mobileNumber)
         res.status(201).json({ success: true, message: 'message saved successfully', messageDetails })
 
@@ -273,6 +275,37 @@ exports.postLeaveGroup = async (req, res, next) => {
         }
 
         res.status(200).json({ success: true, message: 'user removed from group' })
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ success: false, error: error })
+    }
+}
+
+
+exports.postUploadFile = async (req, res, next) => {
+    try {
+
+        const groupId=req.query.groupId;
+        console.log('inside postUploadFile controller')
+        console.log(req.body)
+        console.log(req.files.file)
+        const file = req.files.file;
+
+        //save the file on server 
+        // file.mv(path.join(__dirname, `../uploads/${file.name}`))
+
+        //upload to S3
+        const fileName = `chats/files/group/${groupId}/${req.user.id}/${new Date()}/${file.name}`
+        const fileURL = await S3Services.uploadToS3(file.data, fileName)
+
+        //store it into database
+        const chatGroup = await ChatGroup.findOne({ where: { id: groupId } })
+        const messageDetails = await chatGroup.createMessage({ type:file.mimetype,fileURL:fileURL, sender: req.user.mobileNumber})
+
+        res.status(200).json({success:true,messageDetails})
+       
+
 
     } catch (error) {
         console.log(error)
