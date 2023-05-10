@@ -4,8 +4,8 @@ const ChatGroup = require('../models/chatGroup')
 const Message = require('../models/message')
 const User_ChatGroup = require('../models/user_chatGroup')
 const { Op } = require('sequelize')
-const S3Services=require('../services/S3-services')
-const AWS=require('aws-sdk')
+const S3Services = require('../services/S3-services')
+const AWS = require('aws-sdk')
 
 exports.getDashboard = (req, res, next) => {
     res.sendFile(path.join(__dirname, '../', 'views/dashboard.html'))
@@ -286,7 +286,7 @@ exports.postLeaveGroup = async (req, res, next) => {
 exports.postUploadFile = async (req, res, next) => {
     try {
 
-        const groupId=req.query.groupId;
+        const groupId = req.query.groupId;
         console.log('inside postUploadFile controller')
         console.log(req.body)
         console.log(req.files.file)
@@ -301,14 +301,46 @@ exports.postUploadFile = async (req, res, next) => {
 
         //store it into database
         const chatGroup = await ChatGroup.findOne({ where: { id: groupId } })
-        const messageDetails = await chatGroup.createMessage({ type:file.mimetype,fileURL:fileURL, sender: req.user.mobileNumber})
+        const messageDetails = await chatGroup.createMessage({ type: file.mimetype, fileURL: fileURL, sender: req.user.mobileNumber })
 
-        res.status(200).json({success:true,messageDetails})
-       
+        res.status(200).json({ success: true, messageDetails })
+
 
 
     } catch (error) {
         console.log(error)
         res.status(500).json({ success: false, error: error })
+    }
+}
+
+
+exports.getNewMessages = async (req, res, next) => {
+    try {
+
+        const lastMessageId = req.query.lastMessageId;
+
+        const chatGroups = await req.user.getChatGroups()
+        const chatGroupsId = [];
+        chatGroups.forEach((chatGroup) => {
+            chatGroupsId.push(chatGroup.id)
+
+        })
+
+        const messages = await Message.findAll({
+            where: {
+                [Op.and]: [
+                    { chatGroupId: chatGroupsId },
+                    { id: { [Op.gt]: lastMessageId } }
+                ]
+            }
+        })
+
+        res.status(200).json({ success: true, messages: messages })
+
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ success: false, error: error })
+
     }
 }

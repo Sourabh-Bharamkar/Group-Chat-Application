@@ -53,7 +53,9 @@ async function showJoinedChatGroups() {
                 <div class="group-details">
                     <span class="group-id" hidden> ${chatGroup.id}</span> 
                     <span class="group-name">${chatGroup.name}</span>
-                </div> 
+                </div>
+                <span class="message-count"></span>
+                 
             </div>`)
 
         })
@@ -79,6 +81,27 @@ async function getmessages() {
         const response = await axios.get('http://3.91.209.187:3000/chat/messages')
         const messages = response.data.messages;
         localStorage.setItem('messages', JSON.stringify(messages))
+
+        
+        messages.forEach((message)=>{
+            //increase new messages count of the corresponding group
+            const group = document.getElementById(`group-${message.chatGroupId}`)
+            console.log(group)
+
+            if (group) {
+                let messageCountElement = group.children[2];
+                let messageCount=messageCountElement.innerText;
+                messageCountElement.style.display='block';
+                console.log(group.children[2])
+                console.log(group.children[2].innerText)
+
+                if (!messageCount) {
+                    group.children[2].innerText = 1;
+                } else {
+                    group.children[2].innerText = Number(messageCount) + 1;
+                }
+            }
+        })
 
     } catch (error) {
         console.log(error)
@@ -232,6 +255,7 @@ async function createGroup(e) {
             <span class="group-id" hidden> ${chatGroup.id}</span> 
             <span class="group-name">${chatGroup.name}</span>
         </div> 
+        <span class="message-count"></span>
     </div>`)
         clearAllInputFields();
         closeModal();
@@ -328,6 +352,7 @@ function getMessagesOfGroupOnClick() {
         async function getGroupMessages(e) {
 
             try {
+                console.log(e.target)
 
                 //show messages-list div
                 document.getElementById('messages-coloumn-guide').style.display = 'none'
@@ -375,11 +400,11 @@ function getMessagesOfGroupOnClick() {
 
                 insertMessagesIntoMessagesList(localStorageMessages);
 
-                const response = await axios.post('http://3.91.209.187:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
+                // const response = await axios.post('http://3.91.209.187:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
 
-                const messages = Array.from(response.data.messages);
+                // const messages = Array.from(response.data.messages);
 
-                insertMessagesIntoMessagesList(messages);
+                // insertMessagesIntoMessagesList(messages);
 
                 function insertMessagesIntoMessagesList(messages) {
 
@@ -419,6 +444,9 @@ function getMessagesOfGroupOnClick() {
                                     <source src=${message.fileURL} type="audio/ogg">
                                     <source src=${message.fileURL} type="audio/mpeg">
                                   </audio>`
+                                } else if(message.type.includes('application')){
+                                    const filename = message.fileURL.substring(message.fileURL.lastIndexOf('/')+1);
+                                    mediaHTML=`<a href=${message.fileURL}><img class="document-file-icon" src="/images/doc.png" alt="Document"/> ${filename} </a>`
                                 }
 
 
@@ -487,6 +515,11 @@ function highlightGroupOnClick() {
             const chatHeading = document.getElementById('message-heading')
             chatHeading.innerHTML = ''
             chatHeading.insertAdjacentHTML('afterbegin', groupDetails);
+
+            //hide message count element 
+            const messageCountElement=group.children[2];
+            messageCountElement.style.display='none';
+            messageCountElement.innerText='';
 
         }
 
@@ -851,55 +884,78 @@ async function leaveGroup(e) {
 
 
 
-//socket event for receive message
-
+//socket event on receiving message
 socket.on('receiveMessage', async () => {
 
     try {
 
         console.log('receiveMessage socket event happened')
+
+        let currentGroupId;
         if (document.getElementById('messages-coloumn-guide').style.display == 'none') {
+            currentGroupId = document.getElementById('message-heading').children[0].textContent;
+        }
 
-            const groupId = document.getElementById('message-heading').children[0].textContent;
+        //getting last message id from messages stored in localstorage 
 
-            //getting last message id from messages list 
-            const lastMessage = document.getElementById('messages-list').lastElementChild
-            let lastMessageId;
-
-            if (lastMessage == null) {
-                lastMessageId = 0;
-
-            }
-            else {
-                lastMessageId = lastMessage.id;
-            }
+        const localStorageMessages = JSON.parse(localStorage.getItem('messages'))
+        const lastMessage = localStorageMessages[localStorageMessages.length - 1]
+        let lastMessageId;
 
 
-            const response = await axios.post('http://3.91.209.187:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
+        if (lastMessage == null) {
+            lastMessageId = 0;
 
-            const messages = Array.from(response.data.messages);
+        }
+        else {
+            lastMessageId = lastMessage.id;
+        }
 
 
+        const response = await axios.get(`http://3.91.209.187:3000/chat/new-messages?lastMessageId=${lastMessageId}`)
 
-            //if there are new messsages
+        // const response = await axios.post('http://3.91.209.187:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
 
-            if (messages.length) {
-                const response1 = await axios.get('http://3.91.209.187:3000/chat/profile')
-                const mobileNumber = response1.data.mobileNumber;
+        const messages = Array.from(response.data.messages);
+        console.log(messages.length)
 
-                messages.forEach((message) => {
+        //if there are new messsages
 
+        if (messages.length) {
+
+            const response1 = await axios.get('http://3.91.209.187:3000/chat/profile')
+            const mobileNumber = response1.data.mobileNumber;
+
+            messages.forEach((message) => {
+
+                //store message into local storage
+                let localStorageMessages = JSON.parse(localStorage.getItem('messages'))
+               
+                if (localStorageMessages.length >= 100) {
+                 
+                    localStorageMessages.shift();
+                    localStorageMessages.push(message)
+                    localStorage.setItem('messages',JSON.stringify(localStorageMessages) )
+                }
+                else {
+                    localStorageMessages.push(message)
+                    localStorage.setItem('messages',JSON.stringify(localStorageMessages))
+                }
+
+
+                //if message is from current opened group
+                if (message.chatGroupId == currentGroupId) {
                     if (!message.fileURL) {
                         if (message.sender == mobileNumber) {
                             document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing" >
-                                    <h3 class="sender">You</h3>
-                                    <p>${message.text}</p>
-                                    </div>`)
+                                        <h3 class="sender">You</h3>
+                                        <p>${message.text}</p>
+                                        </div>`)
                         } else {
                             document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
-                                    <h3 class="sender">${message.sender}</h3>
-                                    <p>${message.text}</p>
-                                    </div>`)
+                                        <h3 class="sender">${message.sender}</h3>
+                                        <p>${message.text}</p>
+                                        </div>`)
                         }
 
                     }
@@ -911,47 +967,73 @@ socket.on('receiveMessage', async () => {
                         }
                         else if (message.type.includes('video')) {
                             mediaHTML = `<video width="320" height="240" controls>
-                                    <source src=${message.fileURL} type="video/mp4">
-                                    <source src=${message.fileURL} type="video/ogg">
-                                  </video>`
+                                        <source src=${message.fileURL} type="video/mp4">
+                                        <source src=${message.fileURL} type="video/ogg">
+                                      </video>`
                         }
                         else if (message.type.includes('audio')) {
                             mediaHTML = `<audio controls>
-                                    <source src=${message.fileURL} type="audio/ogg">
-                                    <source src=${message.fileURL} type="audio/mpeg">
-                                  </audio>`
+                                        <source src=${message.fileURL} type="audio/ogg">
+                                        <source src=${message.fileURL} type="audio/mpeg">
+                                      </audio>`
+                        }
+                        else if(message.type.includes('application')){
+                            const filename = message.fileURL.substring(message.fileURL.lastIndexOf('/')+1);
+                            mediaHTML=`<a href=${message.fileURL}><img class="document-file-icon" src="/images/doc.png" alt="Document"/> ${filename} </a>`
                         }
 
                         if (message.sender == mobileNumber) {
                             document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message outgoing" >
-                                    <h3 class="sender">You</h3>
-                                    ${mediaHTML}
-                                    </div>`)
+                                        <h3 class="sender">You</h3>
+                                        ${mediaHTML}
+                                        </div>`)
                         } else {
                             document.getElementById('messages-list').insertAdjacentHTML('beforeend', `<div id=${message.id} class="message incoming">
-                                    <h3 class="sender">${message.sender}</h3>
-                                    ${mediaHTML}
-                                    </div>`)
+                                        <h3 class="sender">${message.sender}</h3>
+                                        ${mediaHTML}
+                                        </div>`)
                         }
                     }
+                }
 
-                })
+                else {
+                  
+                    //increase new messages count of the corresponding group
+                    const group = document.getElementById(`group-${message.chatGroupId}`)
+                    console.log(group)
+
+                    if (group) {
+                        let messageCountElement = group.children[2];
+                        let messageCount=messageCountElement.innerText;
+                        messageCountElement.style.display='block';
+                        console.log(group.children[2])
+                        console.log(group.children[2].innerText)
+
+                        if (!messageCount) {
+                            group.children[2].innerText = 1;
+                        } else {
+                            group.children[2].innerText = Number(messageCount) + 1;
+                        }
+                    }
+                }
 
 
-                //scroll down
-                const messagesList = document.getElementById('messages-list')
-                messagesList.scrollTop = messagesList.scrollHeight;
+            })
 
-            }
+
+            //scroll down
+            const messagesList = document.getElementById('messages-list')
+            messagesList.scrollTop = messagesList.scrollHeight;
 
         }
+
+
 
     } catch (error) {
         console.log(error)
     }
 
 })
-
 
 
 // file share functionality
@@ -969,7 +1051,7 @@ async function sendFile(e) {
         console.log(file)
         let formData = new FormData();
         formData.set('file', file);
-        document.getElementById('file-share-message').textContent='Sending....'
+        document.getElementById('file-share-message').textContent = 'Sending....'
         const response = await axios.post(`http://3.91.209.187:3000/chat/group/upload-file?groupId=${groupId}`, formData)
         const messageDetails = response.data.messageDetails;
         const fileURL = messageDetails.fileURL;
@@ -980,43 +1062,23 @@ async function sendFile(e) {
         })
 
         //showing file share success message
-        document.getElementById('file-share-message').textContent='sent successfully'
-        document.getElementById('myFile').value='';
+        document.getElementById('file-share-message').textContent = 'sent successfully'
+        document.getElementById('myFile').value = '';
         setTimeout(() => {
-            document.getElementById('file-share-message').textContent=''
+            document.getElementById('file-share-message').textContent = ''
         }, 3000);
-        
+
         console.log(fileURL)
 
     } catch (error) {
         console.log(error)
         //showing error message 
-        document.getElementById('file-share-message').textContent=''
-        document.getElementById('file-share-error-message').textContent='*something went wrong...'
-        document.getElementById('myFile').value=''
+        document.getElementById('file-share-message').textContent = ''
+        document.getElementById('file-share-error-message').textContent = '*something went wrong...'
+        document.getElementById('myFile').value = ''
         setTimeout(() => {
-            document.getElementById('file-share-error-message').textContent=''
+            document.getElementById('file-share-error-message').textContent = ''
         }, 3000);
     }
 }
-
-
-
-
-//when you get a new message store it into local storage, check length of messages array
-//if message array length is greater than 100 remove first messages
-
-//on DOMContentLoaded join socket to all chatgroups (rooms)
-//when user sends a message to any room, send message to that room only
-
-//socket.emit('join room',rooms)
-
-//when any user is added in the group, emit an event and send it every socket connection 
-//and on getting this event call backend api for getting any new groups
-
-//store chatgroups in localstorage like messages 
-
-//***********************************************//
-
-
 

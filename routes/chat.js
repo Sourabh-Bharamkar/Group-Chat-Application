@@ -34,4 +34,7 @@ router.post('/chat/group/member/make-group-admin',userAuthentication.authenticat
 router.post('/chat/group/leave',userAuthentication.authenticate,chatControllers.postLeaveGroup)
 
 router.post('/chat/group/upload-file',userAuthentication.authenticate,chatControllers.postUploadFile)
+
+router.get('/chat/new-messages',userAuthentication.authenticate,chatControllers.getNewMessages)
+
 module.exports=router;

@@ -135,6 +135,16 @@ div#create-group {
   background-color: #f6f6f2;
 }
 
+.message-count{
+  display: none;
+  background-color: rgb(79, 167, 17);
+  color: white;
+  margin-left: auto;
+  margin-right: 20px;
+ padding: 0px 4px;
+  
+}
+
 /* css for scrollbar  */
 /* width */
 ::-webkit-scrollbar {
@@ -357,6 +367,14 @@ div#messages-list::-webkit-scrollbar {
   height: 25px;
 }
 
+.document-file{
+  background-color: white;
+}
+
+.document-file-icon{
+  width: 50px;
+  height: 50px;
+}
 
 
 
