@@ -207,6 +207,10 @@ div#create-group {
   height: 25px;
 }
 
+#add-member-success-message{
+  color: green;
+}
+
 #group-members-btn {
   border: none;
 

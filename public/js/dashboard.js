@@ -283,7 +283,15 @@ async function addMemberToGroup(e) {
         const mobileNumber = document.getElementById('add-member-mobile-input').value
         const groupId = document.getElementById('message-heading').children[0].textContent;
         const response = await axios.post('http://3.91.209.187:3000/chat/group/add-member', { mobileNumber: mobileNumber, groupId: groupId })
-        closeModal();
+
+        //show success message
+        document.getElementById('add-member-mobile-input').value='';
+        document.getElementById('add-member-success-message').innerText='user added successfully...';
+
+        setTimeout(() => {
+            document.getElementById('add-member-success-message').innerText='';
+        },2000);
+        
 
     } catch (error) {
         console.log(error.response.data.message)
