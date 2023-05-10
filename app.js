@@ -58,7 +58,7 @@ ChatGroup.hasMany(Message)
 Message.belongsTo(ChatGroup)
 
 
-sequelize.sync({force:true})
+sequelize.sync()
     .then(() => {
         server.listen(3000, () => {
             console.log('Listening on PORT 3000')
