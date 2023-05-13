@@ -37,7 +37,7 @@ async function login(e) {
         localStorage.setItem('token', response.data.token)
         // localStorage.serItem('mobileNumber',response.data.mobileNumber)
         clearInputFields();
-        window.location='/dashboard'
+        window.location='/chats'
 
     }
     catch (error) {

@@ -7,8 +7,8 @@ const { Op } = require('sequelize')
 const S3Services = require('../services/S3-services')
 const AWS = require('aws-sdk')
 
-exports.getDashboard = (req, res, next) => {
-    res.sendFile(path.join(__dirname, '../', 'views/dashboard.html'))
+exports.getChats = (req, res, next) => {
+    res.sendFile(path.join(__dirname, '../', 'views/chats.html'))
 }
 
 exports.getProfile = (req, res, next) => {

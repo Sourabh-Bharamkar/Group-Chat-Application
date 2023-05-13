@@ -5,7 +5,7 @@ const router=express.Router();
 const chatControllers=require('../controllers/chat')
 const userAuthentication=require('../middleware/auth')
 
-router.get('/dashboard',chatControllers.getDashboard)
+router.get('/chats',chatControllers.getChats)
 
 router.get('/chat/profile',userAuthentication.authenticate, chatControllers.getProfile)
 
