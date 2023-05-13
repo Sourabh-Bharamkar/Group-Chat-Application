@@ -11,7 +11,7 @@ window.addEventListener('DOMContentLoaded', getUserProfile)
 
 async function getUserProfile() {
     try {
-        const response = await axios.get('http://3.91.209.187:3000/chat/profile')
+        const response = await axios.get('http://localhost:3000/chat/profile')
         const userDetails = response.data;
         document.getElementById('user-profile').textContent = userDetails.name;
 
@@ -39,7 +39,7 @@ window.addEventListener('DOMContentLoaded', showJoinedChatGroups)
 
 async function showJoinedChatGroups() {
     try {
-        const response = await axios.get('http://3.91.209.187:3000/chat/groups')
+        const response = await axios.get('http://localhost:3000/chat/groups')
         const chatGroups = response.data.chatGroups;
 
         chatGroups.forEach((chatGroup) => {
@@ -78,7 +78,7 @@ window.addEventListener('DOMContentLoaded', getmessages)
 async function getmessages() {
     try {
 
-        const response = await axios.get('http://3.91.209.187:3000/chat/messages')
+        const response = await axios.get('http://localhost:3000/chat/messages')
         const messages = response.data.messages;
         localStorage.setItem('messages', JSON.stringify(messages))
 
@@ -229,7 +229,7 @@ logoutBtn.addEventListener('click', logout)
 function logout() {
     localStorage.clear();
     sessionStorage.clear();
-    window.location = 'http://3.91.209.187:3000/'
+    window.location = 'http://localhost:3000/'
 }
 
 
@@ -243,7 +243,7 @@ async function createGroup(e) {
     try {
         e.preventDefault();
         const groupName = document.getElementById('create-group-input').value;
-        const response = await axios.post('http://3.91.209.187:3000/chat/create-group', { groupName: groupName })
+        const response = await axios.post('http://localhost:3000/chat/create-group', { groupName: groupName })
         const chatGroup = response.data.groupDetails;
         document.getElementById('group-list').insertAdjacentHTML('afterbegin',
             `<div class="group"> 
@@ -282,7 +282,7 @@ async function addMemberToGroup(e) {
         e.preventDefault();
         const mobileNumber = document.getElementById('add-member-mobile-input').value
         const groupId = document.getElementById('message-heading').children[0].textContent;
-        const response = await axios.post('http://3.91.209.187:3000/chat/group/add-member', { mobileNumber: mobileNumber, groupId: groupId })
+        const response = await axios.post('http://localhost:3000/chat/group/add-member', { mobileNumber: mobileNumber, groupId: groupId })
 
         //show success message
         document.getElementById('add-member-mobile-input').value='';
@@ -329,7 +329,7 @@ async function sendMessage(e) {
         e.preventDefault();
         const message = document.getElementById('message-input').value;
         const groupId = document.getElementById('message-heading').children[0].textContent;
-        const response = await axios.post('http://3.91.209.187:3000/chat/group/send-message', { message: message, groupId: groupId })
+        const response = await axios.post('http://localhost:3000/chat/group/send-message', { message: message, groupId: groupId })
         document.getElementById('message-input').value = '';
 
         //add socket event send message 
@@ -369,7 +369,7 @@ function getMessagesOfGroupOnClick() {
                 document.getElementById('messages-list').innerHTML = '';
 
                 //getting mobile number of user
-                const response1 = await axios.get('http://3.91.209.187:3000/chat/profile')
+                const response1 = await axios.get('http://localhost:3000/chat/profile')
                 const mobileNumber = response1.data.mobileNumber;
 
                 //getting group id of current group
@@ -381,7 +381,7 @@ function getMessagesOfGroupOnClick() {
 
                 //if user is admin of group, show add member button 
 
-                const isAdminResponse = await axios.get(`http://3.91.209.187:3000/chat/group/is_admin?groupId=${groupId}`)
+                const isAdminResponse = await axios.get(`http://localhost:3000/chat/group/is_admin?groupId=${groupId}`)
 
                 const user = isAdminResponse.data.user;
                 const isUserAdmin = user.admin;
@@ -408,7 +408,7 @@ function getMessagesOfGroupOnClick() {
 
                 insertMessagesIntoMessagesList(localStorageMessages);
 
-                // const response = await axios.post('http://3.91.209.187:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
+                // const response = await axios.post('http://localhost:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
 
                 // const messages = Array.from(response.data.messages);
 
@@ -551,7 +551,7 @@ async function openGroupMembersModal() {
         const groupId = document.getElementById('message-heading').children[0].textContent;
 
         //check whether user is group admin or not
-        const isAdminResponse = await axios.get(`http://3.91.209.187:3000/chat/group/is_admin?groupId=${groupId}`)
+        const isAdminResponse = await axios.get(`http://localhost:3000/chat/group/is_admin?groupId=${groupId}`)
 
         const user = isAdminResponse.data.user;
         const isUserAdmin = user.admin;
@@ -559,7 +559,7 @@ async function openGroupMembersModal() {
 
         //request for list of all group members
 
-        const response = await axios.get(`http://3.91.209.187:3000/chat/group/members?groupId=${groupId}`)
+        const response = await axios.get(`http://localhost:3000/chat/group/members?groupId=${groupId}`)
         const groupMembers = response.data.groupMembers;
         document.getElementById('group-members-list').innerHTML = '';
 
@@ -790,7 +790,7 @@ removeMemberBtns.forEach((removeMemberBtn) => {
             const memberId = member.children[1].children[0].textContent;
             const groupId = document.getElementById('message-heading').children[0].textContent;
 
-            const response = await axios.post('http://3.91.209.187:3000/chat/group/member/remove', { groupId: groupId, memberId: memberId })
+            const response = await axios.post('http://localhost:3000/chat/group/member/remove', { groupId: groupId, memberId: memberId })
 
             //remove the member from the group members list
             member.remove()
@@ -817,7 +817,7 @@ async function dismissAsGroupAdmin(e) {
         const memberId = member.children[1].children[0].textContent;
         const groupId = document.getElementById('message-heading').children[0].textContent;
 
-        await axios.post('http://3.91.209.187:3000/chat/group/member/dismiss-as-a-group-admin', { memberId, groupId })
+        await axios.post('http://localhost:3000/chat/group/member/dismiss-as-a-group-admin', { memberId, groupId })
 
         //remove admin tag from member
         const adminTagOfMember = member.children[2].children[0];
@@ -846,7 +846,7 @@ async function makeGroupAdmin(e) {
         const memberId = member.children[1].children[0].textContent;
         const groupId = document.getElementById('message-heading').children[0].textContent;
 
-        await axios.post('http://3.91.209.187:3000/chat/group/member/make-group-admin', { memberId, groupId })
+        await axios.post('http://localhost:3000/chat/group/member/make-group-admin', { memberId, groupId })
 
         //remove admin tag from member
         const groupMembersLabels = member.children[2];
@@ -874,7 +874,7 @@ async function leaveGroup(e) {
         e.preventDefault();
 
         const groupId = document.getElementById('message-heading').children[0].textContent;
-        const response = await axios.post('http://3.91.209.187:3000/chat/group/leave', { groupId: groupId })
+        const response = await axios.post('http://localhost:3000/chat/group/leave', { groupId: groupId })
 
         //remove the group from ui
         const activeGroup = Array.from(document.getElementsByClassName('active-group'))
@@ -920,9 +920,9 @@ socket.on('receiveMessage', async () => {
         }
 
 
-        const response = await axios.get(`http://3.91.209.187:3000/chat/new-messages?lastMessageId=${lastMessageId}`)
+        const response = await axios.get(`http://localhost:3000/chat/new-messages?lastMessageId=${lastMessageId}`)
 
-        // const response = await axios.post('http://3.91.209.187:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
+        // const response = await axios.post('http://localhost:3000/chat/group/messages', { groupId: groupId, lastMessageId: lastMessageId })
 
         const messages = Array.from(response.data.messages);
         console.log(messages.length)
@@ -931,7 +931,7 @@ socket.on('receiveMessage', async () => {
 
         if (messages.length) {
 
-            const response1 = await axios.get('http://3.91.209.187:3000/chat/profile')
+            const response1 = await axios.get('http://localhost:3000/chat/profile')
             const mobileNumber = response1.data.mobileNumber;
 
             messages.forEach((message) => {
@@ -1060,7 +1060,7 @@ async function sendFile(e) {
         let formData = new FormData();
         formData.set('file', file);
         document.getElementById('file-share-message').textContent = 'Sending....'
-        const response = await axios.post(`http://3.91.209.187:3000/chat/group/upload-file?groupId=${groupId}`, formData)
+        const response = await axios.post(`http://localhost:3000/chat/group/upload-file?groupId=${groupId}`, formData)
         const messageDetails = response.data.messageDetails;
         const fileURL = messageDetails.fileURL;
 

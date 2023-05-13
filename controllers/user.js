@@ -130,7 +130,7 @@ exports.postForgotPassword = async (req, res, next) => {
             sender: sender,
             subject: 'Group Chat App password recover',
             to: reciever,
-            textContent: `http://3.91.209.187:3000/user/password/reset-password?forgotPasswordRequestId=${requestDetails.id}`
+            textContent: `http://localhost:3000/user/password/reset-password?forgotPasswordRequestId=${requestDetails.id}`
 
         })
 

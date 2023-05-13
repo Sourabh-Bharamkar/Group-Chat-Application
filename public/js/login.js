@@ -21,7 +21,7 @@ async function login(e) {
 
         // verify the email id and password
 
-        const response = await axios.post('http://3.91.209.187:3000/user/login/verify', userDetails)
+        const response = await axios.post('http://localhost:3000/user/login/verify', userDetails)
 
         console.log(response.data)
         console.log(response.data.message)
@@ -110,7 +110,7 @@ async function recoverPassword(e) {
     try {
         e.preventDefault();
         const email = document.getElementById('forgot-password-email').value;
-        const response = await axios.post('http://3.91.209.187:3000/user/password/forgot-password', { email: email })
+        const response = await axios.post('http://localhost:3000/user/password/forgot-password', { email: email })
         const forgotPassworddModal = document.getElementById('forgot-password-modal')
         document.getElementById('forgot-password-email').value = '';
         forgotPassworddModal.style.display = 'none';
